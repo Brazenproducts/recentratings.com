@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://recentratings.com/sitemap.xml
