@@ -18,33 +18,75 @@ export default function Home() {
   return (
     <div>
       {/* Hero */}
-      <section className="bg-gradient-to-br from-blue-700 to-blue-900 text-white py-20 px-4">
-        <div className="max-w-3xl mx-auto text-center">
-          <h1 className="text-4xl sm:text-5xl font-black tracking-tight mb-4">
-            Ratings that actually mean something.
+      <section style={{
+        background: 'linear-gradient(135deg, #1e40af 0%, #1d4ed8 50%, #2563eb 100%)',
+        color: '#fff',
+        padding: '80px 20px',
+        textAlign: 'center',
+      }}>
+        <div style={{ maxWidth: 700, margin: '0 auto' }}>
+          <h1 style={{ fontSize: 'clamp(2rem, 5vw, 3.2rem)', fontWeight: 900, lineHeight: 1.15, marginBottom: 16, letterSpacing: '-1px' }}>
+            Ratings that actually<br />mean something.
           </h1>
-          <p className="text-blue-100 text-lg sm:text-xl mb-8 max-w-xl mx-auto">
-            See how a place is rated in the <strong className="text-white">last 30 days</strong>, not just their all-time average from 2018.
+          <p style={{ fontSize: 18, color: '#bfdbfe', marginBottom: 40, maxWidth: 500, margin: '0 auto 40px' }}>
+            See how a place is rated in the <strong style={{ color: '#fff' }}>last 30 days</strong>, not just their all-time average from 2018.
           </p>
 
-          <form onSubmit={handleSearch} className="bg-white rounded-2xl p-3 flex flex-col sm:flex-row gap-2 shadow-xl max-w-2xl mx-auto">
+          <form onSubmit={handleSearch} style={{
+            background: '#fff',
+            borderRadius: 16,
+            padding: 12,
+            display: 'flex',
+            gap: 8,
+            flexWrap: 'wrap',
+            maxWidth: 640,
+            margin: '0 auto',
+            boxShadow: '0 20px 60px rgba(0,0,0,0.2)',
+          }}>
             <input
               type="text"
-              placeholder="Restaurant name..."
+              placeholder="Restaurant or place name..."
               value={query}
               onChange={e => setQuery(e.target.value)}
-              className="flex-1 px-4 py-3 text-gray-800 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 text-base"
+              style={{
+                flex: 1,
+                minWidth: 200,
+                padding: '12px 16px',
+                fontSize: 15,
+                border: '1px solid #e5e7eb',
+                borderRadius: 10,
+                outline: 'none',
+                color: '#111827',
+              }}
             />
             <input
               type="text"
-              placeholder="City (optional)"
+              placeholder="City"
               value={city}
               onChange={e => setCity(e.target.value)}
-              className="sm:w-44 px-4 py-3 text-gray-800 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 text-base"
+              style={{
+                width: 140,
+                padding: '12px 16px',
+                fontSize: 15,
+                border: '1px solid #e5e7eb',
+                borderRadius: 10,
+                outline: 'none',
+                color: '#111827',
+              }}
             />
             <button
               type="submit"
-              className="bg-blue-600 hover:bg-blue-700 text-white font-bold px-6 py-3 rounded-xl transition-colors text-base whitespace-nowrap"
+              style={{
+                background: '#2563eb',
+                color: '#fff',
+                fontWeight: 700,
+                fontSize: 15,
+                padding: '12px 24px',
+                borderRadius: 10,
+                border: 'none',
+                cursor: 'pointer',
+                whiteSpace: 'nowrap',
+              }}
             >
               Search →
             </button>
@@ -52,59 +94,70 @@ export default function Home() {
         </div>
       </section>
 
-      {/* How it works */}
-      <section className="max-w-4xl mx-auto px-4 py-16">
-        <h2 className="text-2xl font-black text-center text-gray-800 mb-10">Why time-filtered ratings?</h2>
-        <div className="grid sm:grid-cols-3 gap-6">
+      {/* Why section */}
+      <section style={{ maxWidth: 1000, margin: '0 auto', padding: '64px 20px' }}>
+        <h2 style={{ textAlign: 'center', fontSize: 28, fontWeight: 900, color: '#111827', marginBottom: 48 }}>
+          Why time-filtered ratings?
+        </h2>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: 24 }}>
           {[
-            {
-              emoji: '📉',
-              title: 'Restaurants coast on old reviews',
-              desc: 'A place can have a 4.5★ all-time rating while quietly going downhill for the past year. Nobody notices.',
-            },
-            {
-              emoji: '📈',
-              title: 'New places get buried',
-              desc: 'A great new restaurant with 50 recent 5★ reviews gets buried under a mediocre competitor with 2,000 old ones.',
-            },
-            {
-              emoji: '🎯',
-              title: 'Recent = relevant',
-              desc: 'Management changes, chefs leave, quality dips. What happened last month matters more than what happened in 2019.',
-            },
+            { emoji: '📉', title: 'Restaurants coast on old reviews', desc: 'A place can have a 4.5★ all-time rating while quietly going downhill for the past year. Nobody notices.' },
+            { emoji: '📈', title: 'New places get buried', desc: 'A great new restaurant with 50 recent 5★ reviews gets buried under a mediocre competitor with 2,000 old ones.' },
+            { emoji: '🎯', title: 'Recent = relevant', desc: 'Management changes, chefs leave, quality dips. What happened last month matters more than what happened in 2019.' },
           ].map(({ emoji, title, desc }) => (
-            <div key={title} className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm text-center">
-              <div className="text-4xl mb-3">{emoji}</div>
-              <h3 className="font-bold text-gray-800 mb-2">{title}</h3>
-              <p className="text-sm text-gray-500 leading-relaxed">{desc}</p>
+            <div key={title} style={{
+              background: '#fff',
+              borderRadius: 16,
+              padding: 28,
+              border: '1px solid #e5e7eb',
+              boxShadow: '0 1px 4px rgba(0,0,0,0.05)',
+              textAlign: 'center',
+            }}>
+              <div style={{ fontSize: 40, marginBottom: 12 }}>{emoji}</div>
+              <h3 style={{ fontSize: 16, fontWeight: 700, color: '#111827', marginBottom: 8 }}>{title}</h3>
+              <p style={{ fontSize: 14, color: '#6b7280', lineHeight: 1.6 }}>{desc}</p>
             </div>
           ))}
         </div>
       </section>
 
-      {/* Time buckets explanation */}
-      <section className="bg-white border-t border-b border-gray-100 py-12 px-4">
-        <div className="max-w-3xl mx-auto text-center">
-          <h2 className="text-2xl font-black text-gray-800 mb-3">Four time windows. One real picture.</h2>
-          <p className="text-gray-500 mb-8">Every place shows ratings for all four time periods — so you can see if they're trending up, down, or staying steady.</p>
-          <div className="flex flex-wrap justify-center gap-3">
+      {/* Time buckets */}
+      <section style={{ background: '#fff', borderTop: '1px solid #f3f4f6', borderBottom: '1px solid #f3f4f6', padding: '48px 20px', textAlign: 'center' }}>
+        <div style={{ maxWidth: 600, margin: '0 auto' }}>
+          <h2 style={{ fontSize: 26, fontWeight: 900, color: '#111827', marginBottom: 12 }}>Four time windows. One real picture.</h2>
+          <p style={{ fontSize: 15, color: '#6b7280', marginBottom: 28 }}>
+            Every place shows ratings for all four time periods — so you can see if they&apos;re trending up, down, or holding steady.
+          </p>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10, justifyContent: 'center' }}>
             {['Last 30 Days', 'Last 6 Months', 'Last Year', 'All Time'].map(label => (
-              <span key={label} className="bg-blue-50 text-blue-700 font-semibold px-4 py-2 rounded-full text-sm border border-blue-100">
-                {label}
-              </span>
+              <span key={label} style={{
+                background: '#eff6ff',
+                color: '#1d4ed8',
+                fontWeight: 600,
+                padding: '8px 20px',
+                borderRadius: 100,
+                fontSize: 14,
+                border: '1px solid #bfdbfe',
+              }}>{label}</span>
             ))}
           </div>
         </div>
       </section>
 
       {/* CTA */}
-      <section className="max-w-2xl mx-auto px-4 py-16 text-center">
-        <h2 className="text-2xl font-black text-gray-800 mb-3">115,000+ places and growing daily.</h2>
-        <p className="text-gray-500 mb-6">Search for any restaurant and see how it's actually doing right now.</p>
-        <a
-          href="/search"
-          className="inline-block bg-blue-600 hover:bg-blue-700 text-white font-bold px-8 py-4 rounded-xl transition-colors text-lg"
-        >
+      <section style={{ textAlign: 'center', padding: '64px 20px' }}>
+        <h2 style={{ fontSize: 26, fontWeight: 900, color: '#111827', marginBottom: 12 }}>115,000+ places and growing daily.</h2>
+        <p style={{ fontSize: 15, color: '#6b7280', marginBottom: 28 }}>Search for any restaurant and see how it&apos;s actually doing right now.</p>
+        <a href="/search" style={{
+          display: 'inline-block',
+          background: '#2563eb',
+          color: '#fff',
+          fontWeight: 700,
+          fontSize: 16,
+          padding: '14px 36px',
+          borderRadius: 12,
+          textDecoration: 'none',
+        }}>
           Start Searching →
         </a>
       </section>

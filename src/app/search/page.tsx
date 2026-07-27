@@ -1,7 +1,6 @@
 'use client'
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { Suspense } from 'react'
 
 interface Place {
   id: string
@@ -19,60 +18,54 @@ interface Place {
   cuisine_type?: string
 }
 
-function StarRating({ rating }: { rating: number }) {
-  const stars = Math.round(rating * 2) / 2
+function RatingPill({ value, label }: { value: number; label: string }) {
+  const bg = value >= 4.5 ? '#dcfce7' : value >= 4.0 ? '#dbeafe' : value >= 3.5 ? '#fef9c3' : '#fee2e2'
+  const color = value >= 4.5 ? '#166534' : value >= 4.0 ? '#1e40af' : value >= 3.5 ? '#854d0e' : '#991b1b'
   return (
-    <span className="text-amber-400 font-bold">
-      {'★'.repeat(Math.floor(stars))}{'½'.includes(String(stars % 1)) ? '½' : ''}
-      <span className="text-gray-300">{'★'.repeat(5 - Math.ceil(stars))}</span>
-    </span>
-  )
-}
-
-function RatingBadge({ value, label }: { value?: number; label: string }) {
-  if (!value) return null
-  const color = value >= 4.5 ? 'bg-green-100 text-green-800' : value >= 4.0 ? 'bg-blue-100 text-blue-800' : value >= 3.5 ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800'
-  return (
-    <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold ${color}`}>
-      ★ {value.toFixed(1)} <span className="font-normal opacity-70">{label}</span>
+    <span style={{ background: bg, color, fontSize: 12, fontWeight: 700, padding: '3px 10px', borderRadius: 100, display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+      ★ {value.toFixed(1)} <span style={{ fontWeight: 400, opacity: 0.7 }}>{label}</span>
     </span>
   )
 }
 
 function PlaceCard({ place }: { place: Place }) {
   return (
-    <a
-      href={`/place/${place.slug}`}
-      className="bg-white rounded-xl border border-gray-100 shadow-sm hover:shadow-md hover:border-blue-200 transition-all p-4 flex gap-4 group"
+    <a href={`/place/${place.slug}`} style={{
+      display: 'flex',
+      gap: 16,
+      background: '#fff',
+      borderRadius: 14,
+      border: '1px solid #e5e7eb',
+      padding: 16,
+      textDecoration: 'none',
+      color: 'inherit',
+      transition: 'box-shadow 0.15s',
+      boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
+    }}
+    onMouseEnter={e => (e.currentTarget.style.boxShadow = '0 4px 16px rgba(37,99,235,0.12)')}
+    onMouseLeave={e => (e.currentTarget.style.boxShadow = '0 1px 3px rgba(0,0,0,0.04)')}
     >
-      {place.google_photo_url ? (
-        <img
-          src={place.google_photo_url}
-          alt={place.name}
-          className="w-20 h-20 rounded-lg object-cover flex-shrink-0 bg-gray-100"
-          onError={e => { (e.target as HTMLImageElement).style.display = 'none' }}
-        />
-      ) : (
-        <div className="w-20 h-20 rounded-lg bg-gradient-to-br from-blue-100 to-blue-200 flex items-center justify-center flex-shrink-0 text-2xl">
-          🍽️
+      <div style={{
+        width: 72, height: 72, borderRadius: 10, flexShrink: 0,
+        background: '#eff6ff', display: 'flex', alignItems: 'center', justifyContent: 'center',
+        fontSize: 28, overflow: 'hidden',
+      }}>
+        {place.google_photo_url
+          ? <img src={place.google_photo_url} alt={place.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} onError={e => { (e.target as HTMLImageElement).style.display = 'none' }} />
+          : '🍽️'}
+      </div>
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <div style={{ fontWeight: 700, fontSize: 16, color: '#111827', marginBottom: 2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{place.name}</div>
+        <div style={{ fontSize: 13, color: '#6b7280', marginBottom: 8, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+          {place.address}, {place.city}, {place.state}
+          {place.cuisine_type && ` · ${place.cuisine_type}`}
         </div>
-      )}
-      <div className="flex-1 min-w-0">
-        <h3 className="font-bold text-gray-900 group-hover:text-blue-600 transition-colors truncate">{place.name}</h3>
-        <p className="text-sm text-gray-500 truncate">{place.address}, {place.city}, {place.state}</p>
-        {place.cuisine_type && (
-          <p className="text-xs text-gray-400 mt-0.5">{place.cuisine_type}</p>
-        )}
-        <div className="flex flex-wrap gap-1.5 mt-2">
-          {place.google_rating && (
-            <RatingBadge value={place.google_rating} label={`Google · ${(place.google_review_count || 0).toLocaleString()} reviews`} />
-          )}
-          {place.yelp_rating && (
-            <RatingBadge value={place.yelp_rating} label="Yelp" />
-          )}
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+          {place.google_rating && <RatingPill value={place.google_rating} label={`Google${place.google_review_count ? ` (${place.google_review_count.toLocaleString()})` : ''}`} />}
+          {place.yelp_rating && <RatingPill value={place.yelp_rating} label="Yelp" />}
         </div>
       </div>
-      <div className="flex-shrink-0 text-gray-300 group-hover:text-blue-400 transition-colors self-center text-lg">→</div>
+      <div style={{ color: '#d1d5db', alignSelf: 'center', fontSize: 18 }}>›</div>
     </a>
   )
 }
@@ -80,7 +73,6 @@ function PlaceCard({ place }: { place: Place }) {
 function SearchPageInner() {
   const searchParams = useSearchParams()
   const router = useRouter()
-
   const [q, setQ] = useState(searchParams.get('q') || '')
   const [city, setCity] = useState(searchParams.get('city') || '')
   const [results, setResults] = useState<Place[]>([])
@@ -112,9 +104,7 @@ function SearchPageInner() {
   useEffect(() => {
     const initQ = searchParams.get('q') || ''
     const initCity = searchParams.get('city') || ''
-    if (initQ || initCity) {
-      doSearch(initQ, initCity, 1)
-    }
+    if (initQ || initCity) doSearch(initQ, initCity, 1)
   }, [])
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -127,78 +117,58 @@ function SearchPageInner() {
   }
 
   return (
-    <div className="max-w-3xl mx-auto px-4 py-8">
-      <h1 className="text-2xl font-black text-gray-800 mb-6">Search Places</h1>
+    <div style={{ maxWidth: 760, margin: '0 auto', padding: '32px 20px' }}>
+      <h1 style={{ fontSize: 28, fontWeight: 900, color: '#111827', marginBottom: 24 }}>Search Places</h1>
 
-      <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-2 mb-8">
+      <form onSubmit={handleSubmit} style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 32 }}>
         <input
           type="text"
           placeholder="Restaurant name..."
           value={q}
           onChange={e => setQ(e.target.value)}
-          className="flex-1 px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+          style={{ flex: 1, minWidth: 200, padding: '12px 16px', fontSize: 15, border: '1px solid #d1d5db', borderRadius: 10, outline: 'none', background: '#fff' }}
         />
         <input
           type="text"
           placeholder="City"
           value={city}
           onChange={e => setCity(e.target.value)}
-          className="sm:w-40 px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+          style={{ width: 140, padding: '12px 16px', fontSize: 15, border: '1px solid #d1d5db', borderRadius: 10, outline: 'none', background: '#fff' }}
         />
-        <button
-          type="submit"
-          className="bg-blue-600 hover:bg-blue-700 text-white font-bold px-6 py-3 rounded-xl transition-colors"
-        >
+        <button type="submit" style={{ background: '#2563eb', color: '#fff', fontWeight: 700, fontSize: 15, padding: '12px 24px', borderRadius: 10, border: 'none', cursor: 'pointer' }}>
           Search
         </button>
       </form>
 
-      {loading && (
-        <div className="text-center py-12 text-gray-400">Searching...</div>
-      )}
+      {loading && <div style={{ textAlign: 'center', padding: '48px 0', color: '#9ca3af' }}>Searching...</div>}
 
       {!loading && results.length > 0 && (
         <>
-          <p className="text-sm text-gray-500 mb-4">{total.toLocaleString()} results</p>
-          <div className="flex flex-col gap-3">
+          <p style={{ fontSize: 13, color: '#6b7280', marginBottom: 16 }}>{total.toLocaleString()} results</p>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
             {results.map(place => <PlaceCard key={place.id} place={place} />)}
           </div>
-
           {pages > 1 && (
-            <div className="flex justify-center gap-2 mt-8">
-              {page > 1 && (
-                <button
-                  onClick={() => doSearch(q, city, page - 1)}
-                  className="px-4 py-2 rounded-lg border border-gray-200 bg-white hover:bg-gray-50 text-sm font-medium"
-                >
-                  ← Prev
-                </button>
-              )}
-              <span className="px-4 py-2 text-sm text-gray-500">Page {page} of {pages}</span>
-              {page < pages && (
-                <button
-                  onClick={() => doSearch(q, city, page + 1)}
-                  className="px-4 py-2 rounded-lg border border-gray-200 bg-white hover:bg-gray-50 text-sm font-medium"
-                >
-                  Next →
-                </button>
-              )}
+            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 12, marginTop: 32 }}>
+              {page > 1 && <button onClick={() => doSearch(q, city, page - 1)} style={{ padding: '8px 18px', borderRadius: 8, border: '1px solid #e5e7eb', background: '#fff', cursor: 'pointer', fontSize: 14 }}>← Prev</button>}
+              <span style={{ fontSize: 14, color: '#6b7280' }}>Page {page} of {pages}</span>
+              {page < pages && <button onClick={() => doSearch(q, city, page + 1)} style={{ padding: '8px 18px', borderRadius: 8, border: '1px solid #e5e7eb', background: '#fff', cursor: 'pointer', fontSize: 14 }}>Next →</button>}
             </div>
           )}
         </>
       )}
 
       {!loading && results.length === 0 && (q || city) && (
-        <div className="text-center py-12 text-gray-400">
-          <div className="text-4xl mb-3">🔍</div>
-          <p>No results found. Try a different name or city.</p>
+        <div style={{ textAlign: 'center', padding: '64px 0', color: '#9ca3af' }}>
+          <div style={{ fontSize: 48, marginBottom: 12 }}>🔍</div>
+          <p>No results. Try a different name or city.</p>
         </div>
       )}
 
       {!loading && !q && !city && (
-        <div className="text-center py-12 text-gray-300">
-          <div className="text-5xl mb-3">🍽️</div>
-          <p className="text-gray-400">Enter a restaurant name or city to search 115,000+ places.</p>
+        <div style={{ textAlign: 'center', padding: '64px 0', color: '#9ca3af' }}>
+          <div style={{ fontSize: 56, marginBottom: 12 }}>🍽️</div>
+          <p>Enter a restaurant name or city to search 115,000+ places.</p>
         </div>
       )}
     </div>
@@ -207,7 +177,7 @@ function SearchPageInner() {
 
 export default function SearchPage() {
   return (
-    <Suspense fallback={<div className="max-w-3xl mx-auto px-4 py-8 text-gray-400">Loading...</div>}>
+    <Suspense fallback={<div style={{ padding: 40, textAlign: 'center', color: '#9ca3af' }}>Loading...</div>}>
       <SearchPageInner />
     </Suspense>
   )
