@@ -54,6 +54,7 @@ export async function GET(req: NextRequest) {
       `, { count: 'exact' })
       .ilike('city', `%${effectiveCity}%`)
       .order('google_rating_90d', { ascending: false, nullsFirst: false })
+      .order('google_review_count_90d', { ascending: false, nullsFirst: false })
       .range(offset, offset + limit - 1)
 
     if (state) rq = rq.eq('state', state.toUpperCase())
