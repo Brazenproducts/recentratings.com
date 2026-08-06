@@ -16,6 +16,13 @@ interface Place {
   yelp_rating?: number
   yelp_review_count?: number
   cuisine_type?: string
+  // Time-bucketed scores from recent_ratings
+  google_rating_90d?: number
+  google_rating_365d?: number
+  google_rating_alltime?: number
+  google_review_count_90d?: number
+  google_review_count_365d?: number
+  yelp_rating_alltime?: number
 }
 
 function RatingPill({ value, label }: { value: number; label: string }) {
@@ -61,8 +68,24 @@ function PlaceCard({ place }: { place: Place }) {
           {place.cuisine_type && ` · ${place.cuisine_type}`}
         </div>
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
-          {place.google_rating && <RatingPill value={place.google_rating} label={`Google${place.google_review_count ? ` (${place.google_review_count.toLocaleString()})` : ''}`} />}
-          {place.yelp_rating && <RatingPill value={place.yelp_rating} label="Yelp" />}
+          {/* Recent ratings first — our differentiator */}
+          {place.google_rating_90d && (
+            <RatingPill value={place.google_rating_90d} label={`90d${place.google_review_count_90d ? ` · ${place.google_review_count_90d}` : ''}`} />
+          )}
+          {place.google_rating_365d && (
+            <RatingPill value={place.google_rating_365d} label={`1yr${place.google_review_count_365d ? ` · ${place.google_review_count_365d}` : ''}`} />
+          )}
+          {/* All-time Google (from recent_ratings if available, else base table) */}
+          {(place.google_rating_alltime || place.google_rating) && (
+            <RatingPill
+              value={(place.google_rating_alltime || place.google_rating)!}
+              label={`all time${place.google_review_count ? ` · ${place.google_review_count.toLocaleString()}` : ''}`}
+            />
+          )}
+          {/* Yelp */}
+          {(place.yelp_rating_alltime || place.yelp_rating) && (
+            <RatingPill value={(place.yelp_rating_alltime || place.yelp_rating)!} label="Yelp" />
+          )}
         </div>
       </div>
       <div style={{ color: '#d1d5db', alignSelf: 'center', fontSize: 18 }}>›</div>

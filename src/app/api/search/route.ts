@@ -57,13 +57,35 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: error.message }, { status: 500 })
   }
 
+  const places = data || []
+
+  // Fetch time-bucketed ratings for all results in one query
+  let ratingsMap: Record<string, { google_rating_90d?: number; google_rating_365d?: number; google_rating_alltime?: number; google_review_count_90d?: number; google_review_count_365d?: number; yelp_rating_alltime?: number }> = {}
+  if (places.length > 0) {
+    const slugs = places.map((p: { slug: string }) => p.slug)
+    const { data: ratingsRows } = await supabaseAdmin
+      .from('recent_ratings')
+      .select('restaurant_slug,google_rating_90d,google_rating_365d,google_rating_alltime,google_review_count_90d,google_review_count_365d,yelp_rating_alltime')
+      .in('restaurant_slug', slugs)
+    if (ratingsRows) {
+      for (const r of ratingsRows) {
+        ratingsMap[r.restaurant_slug] = r
+      }
+    }
+  }
+
+  // Merge ratings into results
+  const results = places.map((p: Record<string, unknown>) => ({
+    ...p,
+    ...( ratingsMap[p.slug as string] || {} ),
+  }))
+
   return NextResponse.json({
-    results: data || [],
+    results,
     total: count || 0,
     page,
     limit,
     pages: Math.ceil((count || 0) / limit),
-    // Surface whether we auto-routed to city mode so the UI can show a hint
     cityMode: effectiveCity && effectiveQ === '' && !city ? effectiveCity : undefined,
   })
 }
