@@ -4,7 +4,7 @@ import { supabaseAdmin } from '@/lib/supabase'
 import PlaceDetail from './PlaceDetail'
 
 interface Props {
-  params: { slug: string }
+  params: Promise<{ slug: string }>
 }
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
@@ -144,10 +144,11 @@ function buildJsonLd(place: Record<string, unknown>, ratings: Record<string, unk
 // ─── Metadata ────────────────────────────────────────────────────────────────
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { slug } = await params
   const { data: place } = await supabaseAdmin
     .from('restaurants')
     .select('name, city, state, google_rating, google_review_count')
-    .eq('slug', params.slug)
+    .eq('slug', slug)
     .single()
 
   if (!place) return { title: 'Place Not Found — RecentRatings' }
@@ -155,7 +156,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { data: ratings } = await supabaseAdmin
     .from('recent_ratings')
     .select('google_rating_90d, google_rating_365d, google_rating_alltime, google_review_count_90d')
-    .eq('restaurant_slug', params.slug)
+    .eq('restaurant_slug', slug)
     .single()
 
   // Pick best available score for meta description
@@ -185,7 +186,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     openGraph: {
       title,
       description: description.slice(0, 160),
-      url: `https://recentratings.com/place/${params.slug}`,
+      url: `https://recentratings.com/place/${slug}`,
       siteName: 'RecentRatings',
       type: 'website',
     },
@@ -195,10 +196,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
 export default async function PlacePage({ params }: Props) {
+  const { slug } = await params
   const { data: place } = await supabaseAdmin
     .from('restaurants')
     .select('*')
-    .eq('slug', params.slug)
+    .eq('slug', slug)
     .single()
 
   if (!place) {
@@ -215,7 +217,7 @@ export default async function PlacePage({ params }: Props) {
   const { data: ratings } = await supabaseAdmin
     .from('recent_ratings')
     .select('*')
-    .eq('restaurant_slug', params.slug)
+    .eq('restaurant_slug', slug)
     .single()
 
   const { data: reviews } = await supabaseAdmin
