@@ -124,22 +124,28 @@ export async function GET(req: NextRequest) {
       }
     }
 
-    // Certified/featured rows — always first
-    const certifiedRows = (certifiedPlaces || []).map((p: Record<string, unknown>) =>
+    // Certified rows: split into those with data vs those without
+    const allCertifiedRows = (certifiedPlaces || []).map((p: Record<string, unknown>) =>
       buildRow(p.slug as string, p.name as string, p.city as string, p.state as string)
     )
+    const certifiedWithData = allCertifiedRows.filter(r =>
+      r.google_rating || r.google_rating_alltime || r.google_rating_90d || r.google_rating_365d
+    )
+    const certifiedNoData = allCertifiedRows.filter(r =>
+      !r.google_rating && !r.google_rating_alltime && !r.google_rating_90d && !r.google_rating_365d
+    )
 
-    // Non-certified rows sorted by 90d score — exclude any already in certified list
+    // Non-certified organic rows sorted by 90d score
     const organicRows = (ratedRows || [])
       .filter((r: { restaurant_slug: string }) => !certifiedSlugs.has(r.restaurant_slug))
       .map((r: Record<string, unknown>) =>
         buildRow(r.restaurant_slug as string, r.restaurant_name as string, r.city as string, r.state as string)
       )
 
-    // Paginate: certified always included on page 1, organic fills the rest
+    // Order: certified with data → organic scored → certified with no data
     const allRows = page === 1
-      ? [...certifiedRows, ...organicRows].slice(0, limit)
-      : organicRows.slice(offset - certifiedRows.length, offset - certifiedRows.length + limit)
+      ? [...certifiedWithData, ...organicRows, ...certifiedNoData].slice(0, limit)
+      : [...organicRows, ...certifiedNoData].slice(offset - certifiedWithData.length, offset - certifiedWithData.length + limit)
 
     results = allRows
     totalCount = rCount || 0
