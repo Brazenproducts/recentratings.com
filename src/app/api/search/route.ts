@@ -42,8 +42,18 @@ export async function GET(req: NextRequest) {
   let totalCount = 0
 
   if (isCityBrowse) {
-    // Pull from recent_ratings (has time buckets) joined with restaurant info
-    // Sort: 90d score desc (nulls last), then 365d, then alltime, then review count
+    // Step 1: fetch certified/featured places for this city from restaurants table (always pinned to top)
+    const { data: certifiedPlaces } = await supabaseAdmin
+      .from('restaurants')
+      .select('slug,name,address,city,state,google_rating,google_review_count,google_photo_url,google_price_level,yelp_rating,yelp_review_count,cuisine_type,is_certified,is_featured,is_founding_member,preferred_timeframe')
+      .ilike('city', `%${effectiveCity}%`)
+      .or('is_certified.eq.true,is_featured.eq.true')
+      .order('is_founding_member', { ascending: false })
+      .order('is_certified', { ascending: false })
+
+    const certifiedSlugs = new Set((certifiedPlaces || []).map((p: { slug: string }) => p.slug))
+
+    // Step 2: fetch time-bucketed data for all results, sorting non-certified by 90d score
     let rq = supabaseAdmin
       .from('recent_ratings')
       .select(`
@@ -55,50 +65,83 @@ export async function GET(req: NextRequest) {
       .ilike('city', `%${effectiveCity}%`)
       .order('google_rating_90d', { ascending: false, nullsFirst: false })
       .order('google_review_count_90d', { ascending: false, nullsFirst: false })
-      .range(offset, offset + limit - 1)
+      .range(0, 199) // fetch enough to fill page after certified are pinned
 
     if (state) rq = rq.eq('state', state.toUpperCase())
 
     const { data: ratedRows, error: rErr, count: rCount } = await rq
     if (rErr) return NextResponse.json({ error: rErr.message }, { status: 500 })
 
-    // Enrich with photo/address/slug from restaurants table
-    const slugs = (ratedRows || []).map((r: { restaurant_slug: string }) => r.restaurant_slug)
-    let restaurantMap: Record<string, Record<string, unknown>> = {}
-    if (slugs.length > 0) {
+    // Enrich with restaurant details
+    const allSlugs = [...new Set([
+      ...(certifiedPlaces || []).map((p: { slug: string }) => p.slug),
+      ...(ratedRows || []).map((r: { restaurant_slug: string }) => r.restaurant_slug),
+    ])]
+    const restaurantMap: Record<string, Record<string, unknown>> = {}
+    if (allSlugs.length > 0) {
       const { data: rests } = await supabaseAdmin
         .from('restaurants')
-        .select('slug,address,google_photo_url,google_price_level,yelp_rating,yelp_review_count,cuisine_type,google_rating,google_review_count')
-        .in('slug', slugs)
+        .select('slug,address,google_photo_url,google_price_level,yelp_rating,yelp_review_count,cuisine_type,google_rating,google_review_count,is_certified,is_featured,is_founding_member,preferred_timeframe')
+        .in('slug', allSlugs)
       if (rests) {
         for (const r of rests) restaurantMap[r.slug] = r
       }
     }
 
-    results = (ratedRows || []).map((r: Record<string, unknown>) => {
-      const rest = restaurantMap[r.restaurant_slug as string] || {}
+    // Ratings map from recent_ratings
+    const ratingsMap: Record<string, Record<string, unknown>> = {}
+    for (const r of (ratedRows || [])) {
+      ratingsMap[r.restaurant_slug as string] = r
+    }
+
+    function buildRow(slug: string, name: string, city: string, state: string) {
+      const rest = restaurantMap[slug] || {}
+      const rating = ratingsMap[slug] || {}
       return {
-        id: r.restaurant_slug,
-        slug: r.restaurant_slug,
-        name: r.restaurant_name,
-        city: r.city,
-        state: r.state,
+        id: slug,
+        slug,
+        name,
+        city,
+        state,
         address: rest.address,
         google_photo_url: rest.google_photo_url,
         google_price_level: rest.google_price_level,
         google_rating: rest.google_rating,
-        google_review_count: rest.google_review_count || r.google_review_count,
+        google_review_count: rest.google_review_count || rating.google_review_count,
         yelp_rating: rest.yelp_rating,
         yelp_review_count: rest.yelp_review_count,
-        yelp_rating_alltime: r.yelp_rating_alltime,
+        yelp_rating_alltime: rating.yelp_rating_alltime,
         cuisine_type: rest.cuisine_type,
-        google_rating_90d: r.google_rating_90d,
-        google_rating_365d: r.google_rating_365d,
-        google_rating_alltime: r.google_rating_alltime,
-        google_review_count_90d: r.google_review_count_90d,
-        google_review_count_365d: r.google_review_count_365d,
+        is_certified: rest.is_certified,
+        is_featured: rest.is_featured,
+        is_founding_member: rest.is_founding_member,
+        preferred_timeframe: rest.preferred_timeframe,
+        google_rating_90d: rating.google_rating_90d,
+        google_rating_365d: rating.google_rating_365d,
+        google_rating_alltime: rating.google_rating_alltime,
+        google_review_count_90d: rating.google_review_count_90d,
+        google_review_count_365d: rating.google_review_count_365d,
       }
-    })
+    }
+
+    // Certified/featured rows — always first
+    const certifiedRows = (certifiedPlaces || []).map((p: Record<string, unknown>) =>
+      buildRow(p.slug as string, p.name as string, p.city as string, p.state as string)
+    )
+
+    // Non-certified rows sorted by 90d score — exclude any already in certified list
+    const organicRows = (ratedRows || [])
+      .filter((r: { restaurant_slug: string }) => !certifiedSlugs.has(r.restaurant_slug))
+      .map((r: Record<string, unknown>) =>
+        buildRow(r.restaurant_slug as string, r.restaurant_name as string, r.city as string, r.state as string)
+      )
+
+    // Paginate: certified always included on page 1, organic fills the rest
+    const allRows = page === 1
+      ? [...certifiedRows, ...organicRows].slice(0, limit)
+      : organicRows.slice(offset - certifiedRows.length, offset - certifiedRows.length + limit)
+
+    results = allRows
     totalCount = rCount || 0
 
   } else {

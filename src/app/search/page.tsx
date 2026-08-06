@@ -16,6 +16,11 @@ interface Place {
   yelp_rating?: number
   yelp_review_count?: number
   cuisine_type?: string
+  // Certified/featured status
+  is_certified?: boolean
+  is_featured?: boolean
+  is_founding_member?: boolean
+  preferred_timeframe?: '90d' | '365d' | 'alltime' | null
   // Time-bucketed scores from recent_ratings
   google_rating_90d?: number
   google_rating_365d?: number
@@ -36,21 +41,34 @@ function RatingPill({ value, label }: { value: number; label: string }) {
 }
 
 function PlaceCard({ place }: { place: Place }) {
+  const isCertified = !!(place.is_certified || place.is_featured)
+  const isFounder = !!place.is_founding_member
+
+  // For certified places: show their preferred timeframe score prominently first
+  const preferredScore = place.preferred_timeframe === '90d' ? place.google_rating_90d
+    : place.preferred_timeframe === '365d' ? place.google_rating_365d
+    : place.preferred_timeframe === 'alltime' ? (place.google_rating_alltime || place.google_rating)
+    : null
+  const preferredLabel = place.preferred_timeframe === '90d' ? `last 90 days · ${place.google_review_count_90d ?? ''}`
+    : place.preferred_timeframe === '365d' ? `last year · ${place.google_review_count_365d ?? ''}`
+    : place.preferred_timeframe === 'alltime' ? `all time · ${place.google_review_count?.toLocaleString() ?? ''}`
+    : null
+
   return (
     <a href={`/place/${place.slug}`} style={{
       display: 'flex',
       gap: 16,
-      background: '#fff',
+      background: isCertified ? '#f0f7ff' : '#fff',
       borderRadius: 14,
-      border: '1px solid #e5e7eb',
+      border: isCertified ? '1.5px solid #93c5fd' : '1px solid #e5e7eb',
       padding: 16,
       textDecoration: 'none',
       color: 'inherit',
       transition: 'box-shadow 0.15s',
-      boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
+      boxShadow: isCertified ? '0 2px 8px rgba(37,99,235,0.08)' : '0 1px 3px rgba(0,0,0,0.04)',
     }}
     onMouseEnter={e => (e.currentTarget.style.boxShadow = '0 4px 16px rgba(37,99,235,0.12)')}
-    onMouseLeave={e => (e.currentTarget.style.boxShadow = '0 1px 3px rgba(0,0,0,0.04)')}
+    onMouseLeave={e => (e.currentTarget.style.boxShadow = isCertified ? '0 2px 8px rgba(37,99,235,0.08)' : '0 1px 3px rgba(0,0,0,0.04)')}
     >
       <div style={{
         width: 72, height: 72, borderRadius: 10, flexShrink: 0,
@@ -62,27 +80,37 @@ function PlaceCard({ place }: { place: Place }) {
           : '🍽️'}
       </div>
       <div style={{ flex: 1, minWidth: 0 }}>
-        <div style={{ fontWeight: 700, fontSize: 16, color: '#111827', marginBottom: 2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{place.name}</div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 2 }}>
+          <div style={{ fontWeight: 700, fontSize: 16, color: '#111827', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{place.name}</div>
+          {isFounder && (
+            <span style={{ fontSize: 11, fontWeight: 700, background: '#fef3c7', color: '#92400e', padding: '2px 7px', borderRadius: 20, whiteSpace: 'nowrap', flexShrink: 0 }}>⭐ Founding</span>
+          )}
+          {isCertified && !isFounder && (
+            <span style={{ fontSize: 11, fontWeight: 700, background: '#dbeafe', color: '#1d4ed8', padding: '2px 7px', borderRadius: 20, whiteSpace: 'nowrap', flexShrink: 0 }}>✓ Featured</span>
+          )}
+        </div>
         <div style={{ fontSize: 13, color: '#6b7280', marginBottom: 8, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
           {place.address}, {place.city}, {place.state}
           {place.cuisine_type && ` · ${place.cuisine_type}`}
         </div>
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
-          {/* Recent ratings first — our differentiator */}
-          {place.google_rating_90d && (
+          {/* Certified: preferred timeframe score shown first and prominently */}
+          {isCertified && preferredScore && preferredLabel && (
+            <RatingPill value={preferredScore} label={`★ ${preferredLabel.trim().replace(/·\s*$/, '')}`} />
+          )}
+          {/* Recent ratings — our differentiator (skip preferred timeframe to avoid dupe) */}
+          {place.google_rating_90d && place.preferred_timeframe !== '90d' && (
             <RatingPill value={place.google_rating_90d} label={`90d${place.google_review_count_90d ? ` · ${place.google_review_count_90d}` : ''}`} />
           )}
-          {place.google_rating_365d && (
+          {place.google_rating_365d && place.preferred_timeframe !== '365d' && (
             <RatingPill value={place.google_rating_365d} label={`1yr${place.google_review_count_365d ? ` · ${place.google_review_count_365d}` : ''}`} />
           )}
-          {/* All-time Google (from recent_ratings if available, else base table) */}
-          {(place.google_rating_alltime || place.google_rating) && (
+          {(place.google_rating_alltime || place.google_rating) && place.preferred_timeframe !== 'alltime' && (
             <RatingPill
               value={(place.google_rating_alltime || place.google_rating)!}
               label={`all time${place.google_review_count ? ` · ${place.google_review_count.toLocaleString()}` : ''}`}
             />
           )}
-          {/* Yelp */}
           {(place.yelp_rating_alltime || place.yelp_rating) && (
             <RatingPill value={(place.yelp_rating_alltime || place.yelp_rating)!} label="Yelp" />
           )}
