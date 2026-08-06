@@ -1,5 +1,4 @@
 import { Metadata } from 'next'
-import Script from 'next/script'
 import { supabaseAdmin } from '@/lib/supabase'
 import PlaceDetail from './PlaceDetail'
 
@@ -232,11 +231,9 @@ export default async function PlacePage({ params }: Props) {
   return (
     <>
       {jsonLd && (
-        <Script
-          id="place-schema"
+        <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-          strategy="beforeInteractive"
         />
       )}
       <PlaceDetail place={place} ratings={ratings} reviews={reviews || []} />
