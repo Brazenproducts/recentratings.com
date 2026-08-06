@@ -1,6 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase'
 
+// Check if a query string exactly matches a city name in our DB
+async function isKnownCity(q: string): Promise<boolean> {
+  if (!q || q.trim().length < 2) return false
+  const { count } = await supabaseAdmin
+    .from('restaurants')
+    .select('id', { count: 'exact', head: true })
+    .ilike('city', q.trim())
+    .limit(1)
+  return (count ?? 0) > 0
+}
+
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url)
   const q = searchParams.get('q') || ''
@@ -10,6 +21,19 @@ export async function GET(req: NextRequest) {
   const limit = Math.min(parseInt(searchParams.get('limit') || '20'), 50)
   const offset = (page - 1) * limit
 
+  // Smart routing: if q exactly matches a city in our DB and no explicit city param,
+  // treat q as a city browse rather than a name search
+  let effectiveQ = q
+  let effectiveCity = city
+  const modeParam = searchParams.get('mode') || ''
+  if (q && !city && modeParam !== 'name') {
+    const cityMatch = await isKnownCity(q)
+    if (cityMatch) {
+      effectiveCity = q
+      effectiveQ = ''
+    }
+  }
+
   let query = supabaseAdmin
     .from('restaurants')
     .select('id,name,slug,address,city,state,google_rating,google_review_count,google_photo_url,google_price_level,yelp_rating,yelp_review_count,cuisine_type', { count: 'exact' })
@@ -17,11 +41,11 @@ export async function GET(req: NextRequest) {
     .order('google_review_count', { ascending: false })
     .range(offset, offset + limit - 1)
 
-  if (q) {
-    query = query.ilike('name', `%${q}%`)
+  if (effectiveQ) {
+    query = query.ilike('name', `%${effectiveQ}%`)
   }
-  if (city) {
-    query = query.ilike('city', `%${city}%`)
+  if (effectiveCity) {
+    query = query.ilike('city', `%${effectiveCity}%`)
   }
   if (state) {
     query = query.eq('state', state.toUpperCase())
@@ -39,5 +63,7 @@ export async function GET(req: NextRequest) {
     page,
     limit,
     pages: Math.ceil((count || 0) / limit),
+    // Surface whether we auto-routed to city mode so the UI can show a hint
+    cityMode: effectiveCity && effectiveQ === '' && !city ? effectiveCity : undefined,
   })
 }
