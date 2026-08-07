@@ -228,6 +228,94 @@ export default async function PlacePage({ params }: Props) {
 
   const jsonLd = buildJsonLd(place, ratings)
 
+  // City average scores for comparison content
+  let cityAvg90d: number | null = null
+  let cityAvgAlltime: number | null = null
+  if (place.city) {
+    const { data: cityRatings } = await supabaseAdmin
+      .from('recent_ratings')
+      .select('google_rating_90d,google_rating_alltime')
+      .ilike('city', place.city)
+      .limit(500)
+    if (cityRatings && cityRatings.length > 0) {
+      const valid90d = cityRatings.filter(r => r.google_rating_90d).map(r => r.google_rating_90d as number)
+      const validAll = cityRatings.filter(r => r.google_rating_alltime).map(r => r.google_rating_alltime as number)
+      if (valid90d.length) cityAvg90d = parseFloat((valid90d.reduce((a, b) => a + b, 0) / valid90d.length).toFixed(2))
+      if (validAll.length) cityAvgAlltime = parseFloat((validAll.reduce((a, b) => a + b, 0) / validAll.length).toFixed(2))
+    }
+  }
+
+  // Nearby places in the same city for internal linking
+  const { data: nearbyRaw } = await supabaseAdmin
+    .from('recent_ratings')
+    .select('restaurant_slug,restaurant_name,city,state,google_rating_90d,google_rating_alltime')
+    .ilike('city', place.city)
+    .neq('restaurant_slug', slug)
+    .not('google_rating_90d', 'is', null)
+    .order('google_rating_90d', { ascending: false })
+    .limit(20)
+
+  // Enrich nearby with cuisine_type and google_rating from restaurants table
+  const nearbySlugs = (nearbyRaw || []).map(r => r.restaurant_slug)
+  let nearbyRestMap: Record<string, { cuisine_type?: string; google_rating?: number }> = {}
+  if (nearbySlugs.length > 0) {
+    const { data: nearbyRests } = await supabaseAdmin
+      .from('restaurants')
+      .select('slug,cuisine_type,google_rating')
+      .in('slug', nearbySlugs)
+    if (nearbyRests) {
+      for (const r of nearbyRests) nearbyRestMap[r.slug] = r
+    }
+  }
+
+  const nearbyPlaces = (nearbyRaw || []).slice(0, 6).map(r => ({
+    name: r.restaurant_name,
+    slug: r.restaurant_slug,
+    city: r.city,
+    state: r.state,
+    google_rating_90d: r.google_rating_90d,
+    google_rating: nearbyRestMap[r.restaurant_slug]?.google_rating ?? r.google_rating_alltime,
+    cuisine_type: nearbyRestMap[r.restaurant_slug]?.cuisine_type,
+  }))
+
+  // Build FAQPage schema from FAQ content
+  const faqItems: Array<{ q: string; a: string }> = []
+  const score90d = ratings?.google_rating_90d
+  const count90d = ratings?.google_review_count_90d
+  const alltime = ratings?.google_rating_alltime ?? place.google_rating
+  const countAll = ratings?.google_review_count ?? place.google_review_count
+
+  if (score90d) {
+    faqItems.push({
+      q: `Is ${place.name} good right now?`,
+      a: `Based on ${count90d ?? 'recent'} Google reviews in the last 90 days, ${place.name} is rated ★${score90d.toFixed(1)} — ${score90d >= 4.5 ? 'Excellent' : score90d >= 4.0 ? 'Very Good' : score90d >= 3.5 ? 'Average' : 'Below Average'}.`
+    })
+  }
+  if (alltime) {
+    faqItems.push({
+      q: `What is ${place.name}'s overall Google rating?`,
+      a: `${place.name} has an all-time Google rating of ★${alltime.toFixed(1)} based on ${countAll?.toLocaleString() ?? 'many'} total reviews.`
+    })
+  }
+  faqItems.push({
+    q: `Where is ${place.name} located?`,
+    a: `${place.name} is located at ${place.address}, ${place.city}, ${place.state}${place.zip ? ' ' + place.zip : ''}.${place.phone ? ' Phone: ' + place.phone + '.' : ''}`
+  })
+  faqItems.push({
+    q: 'How does RecentRatings differ from Google or Yelp?',
+    a: 'RecentRatings breaks review history into three time windows — 90 days, 1 year, and all time — so you can see whether a place is currently good, not just historically rated well.'
+  })
+
+  const faqSchema = faqItems.length > 0 ? {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: faqItems.map(item => ({
+      '@type': 'Question',
+      name: item.q,
+      acceptedAnswer: { '@type': 'Answer', text: item.a }
+    }))
+  } : null
+
   return (
     <>
       {jsonLd && (
@@ -236,7 +324,20 @@ export default async function PlacePage({ params }: Props) {
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
       )}
-      <PlaceDetail place={place} ratings={ratings} reviews={reviews || []} />
+      {faqSchema && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
+        />
+      )}
+      <PlaceDetail
+        place={place}
+        ratings={ratings}
+        reviews={reviews || []}
+        cityAvg90d={cityAvg90d}
+        cityAvgAlltime={cityAvgAlltime}
+        nearbyPlaces={nearbyPlaces}
+      />
     </>
   )
 }
