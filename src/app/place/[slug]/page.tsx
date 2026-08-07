@@ -226,6 +226,11 @@ export default async function PlacePage({ params }: Props) {
     .order('time', { ascending: false })
     .limit(10)
 
+  // Parse hours if stored as JSON string
+  if (place.hours && typeof place.hours === 'string') {
+    try { place.hours = JSON.parse(place.hours as unknown as string) } catch { place.hours = undefined }
+  }
+
   const jsonLd = buildJsonLd(place, ratings)
 
   // City average scores for comparison content
