@@ -221,10 +221,10 @@ export default async function PlacePage({ params }: Props) {
 
   const { data: reviews } = await supabaseAdmin
     .from('reviews_cache')
-    .select('*')
-    .eq('place_id', place.google_place_id)
-    .order('time', { ascending: false })
-    .limit(10)
+    .select('id,author_name,rating,text,time_published')
+    .eq('google_place_id', place.google_place_id)
+    .order('time_published', { ascending: false })
+    .limit(8)
 
   // Parse hours if stored as JSON string
   if (place.hours && typeof place.hours === 'string') {
