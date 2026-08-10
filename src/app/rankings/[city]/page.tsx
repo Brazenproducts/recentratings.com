@@ -35,7 +35,7 @@ export default async function RankingsPage({ params }: PageProps) {
   // Fetch top 25 places in this city with rating data
   const { data: places } = await supabaseAdmin
     .from('restaurants')
-    .select('id, name, slug, address, cuisine_type, google_rating, google_review_count, price_level, is_certified')
+    .select('id, name, slug, address, cuisine_type, google_rating, google_review_count, is_certified')
     .ilike('city', `%${cityName}%`)
     .ilike('state', `%${state}%`)
     .not('google_rating', 'is', null)
