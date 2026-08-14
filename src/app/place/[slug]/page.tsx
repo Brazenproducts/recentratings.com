@@ -156,7 +156,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     .from('recent_ratings')
     .select('google_rating_90d, google_rating_365d, google_rating_alltime, google_review_count_90d')
     .eq('restaurant_slug', slug)
-    .single()
+    .maybeSingle()
 
   // Pick best available score for meta description
   const score90d = ratings?.google_rating_90d
@@ -217,7 +217,7 @@ export default async function PlacePage({ params }: Props) {
     .from('recent_ratings')
     .select('*')
     .eq('restaurant_slug', slug)
-    .single()
+    .maybeSingle()
 
   const { data: reviews } = await supabaseAdmin
     .from('reviews_cache')

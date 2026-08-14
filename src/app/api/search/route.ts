@@ -164,7 +164,13 @@ export async function GET(req: NextRequest) {
     if (state) query = query.eq('state', state.toUpperCase())
 
     const { data, error, count } = await query
-    if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+    // Gracefully handle DB timeouts — return empty rather than crashing
+    if (error) {
+      if (error.message?.includes('timeout') || error.message?.includes('canceling')) {
+        return NextResponse.json({ results: [], total: 0, page, limit, pages: 0, timedOut: true })
+      }
+      return NextResponse.json({ error: error.message }, { status: 500 })
+    }
 
     const places = data || []
     totalCount = count || 0
