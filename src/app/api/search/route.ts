@@ -151,44 +151,53 @@ export async function GET(req: NextRequest) {
     totalCount = rCount || 0
 
   } else {
-    // Name search: query restaurants table
-    let query = supabaseAdmin
-      .from('restaurants')
-      .select('id,name,slug,address,city,state,google_rating,google_review_count,google_photo_url,google_price_level,yelp_rating,yelp_review_count,cuisine_type', { count: 'exact' })
-      .not('google_rating', 'is', null)
+    // Name search: query recent_ratings first (46k rows, fast) then enrich from restaurants
+    let rq = supabaseAdmin
+      .from('recent_ratings')
+      .select('restaurant_slug,restaurant_name,city,state,google_rating_90d,google_rating_365d,google_rating_alltime,google_review_count_90d,google_review_count_365d,google_review_count', { count: 'exact' })
       .order('google_review_count', { ascending: false })
       .range(offset, offset + limit - 1)
 
-    if (effectiveQ) query = query.ilike('name', `%${effectiveQ}%`)
-    if (effectiveCity) query = query.ilike('city', `%${effectiveCity}%`)
-    if (state) query = query.eq('state', state.toUpperCase())
+    if (effectiveQ) rq = rq.ilike('restaurant_name', `%${effectiveQ}%`)
+    if (effectiveCity) rq = rq.ilike('city', `%${effectiveCity}%`)
+    if (state) rq = rq.eq('state', state.toUpperCase())
 
-    const { data, error, count } = await query
-    // Gracefully handle DB timeouts — return empty rather than crashing
-    if (error) {
-      if (error.message?.includes('timeout') || error.message?.includes('canceling')) {
+    const { data: ratedRows, error: rErr, count: rCount } = await rq
+    if (rErr) {
+      if (rErr.message?.includes('timeout') || rErr.message?.includes('canceling')) {
         return NextResponse.json({ results: [], total: 0, page, limit, pages: 0, timedOut: true })
       }
-      return NextResponse.json({ error: error.message }, { status: 500 })
+      return NextResponse.json({ error: rErr.message }, { status: 500 })
     }
 
-    const places = data || []
-    totalCount = count || 0
+    totalCount = rCount || 0
+    const rows = ratedRows || []
 
-    // Enrich name-search results with time-bucketed data
-    if (places.length > 0) {
-      const slugs = places.map((p: { slug: string }) => p.slug)
-      const { data: ratingsRows } = await supabaseAdmin
-        .from('recent_ratings')
-        .select('restaurant_slug,google_rating_90d,google_rating_365d,google_rating_alltime,google_review_count_90d,google_review_count_365d,yelp_rating_alltime')
-        .in('restaurant_slug', slugs)
-      const ratingsMap: Record<string, Record<string, unknown>> = {}
-      if (ratingsRows) {
-        for (const r of ratingsRows) ratingsMap[r.restaurant_slug] = r
+    // Enrich with restaurant details (photo, address, certified status etc)
+    if (rows.length > 0) {
+      const slugs = rows.map((r: { restaurant_slug: string }) => r.restaurant_slug)
+      const { data: rests } = await supabaseAdmin
+        .from('restaurants')
+        .select('slug,address,google_photo_url,google_price_level,yelp_rating,yelp_review_count,cuisine_type,google_rating,google_review_count,is_certified,is_featured,is_founding_member,preferred_timeframe')
+        .in('slug', slugs)
+      const restMap: Record<string, Record<string, unknown>> = {}
+      if (rests) { for (const r of rests) restMap[r.slug] = r }
+      results = rows.map((r: Record<string, unknown>) => ({ ...r, id: r.restaurant_slug, slug: r.restaurant_slug, name: r.restaurant_name, ...(restMap[r.restaurant_slug as string] || {}) }))
+    }
+
+    // Also check certified restaurants table for places not in recent_ratings (e.g. newly added)
+    if (effectiveQ) {
+      const { data: certMatches } = await supabaseAdmin
+        .from('restaurants')
+        .select('id,name,slug,address,city,state,google_rating,google_review_count,google_photo_url,cuisine_type,is_certified,is_featured,is_founding_member,preferred_timeframe')
+        .ilike('name', `%${effectiveQ}%`)
+        .eq('is_certified', true)
+        .limit(10)
+      if (certMatches?.length) {
+        const existingSlugs = new Set(results.map((r: Record<string, unknown>) => r.slug))
+        const newCert = certMatches.filter((r: { slug: string }) => !existingSlugs.has(r.slug))
+        results = [...newCert.map((r: Record<string, unknown>) => ({ ...r, id: r.slug })), ...results]
       }
-      results = places.map((p: Record<string, unknown>) => ({ ...p, ...(ratingsMap[p.slug as string] || {}) }))
-    } else {
-      results = places
     }
   }
 
