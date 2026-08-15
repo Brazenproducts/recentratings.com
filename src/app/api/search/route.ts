@@ -151,54 +151,69 @@ export async function GET(req: NextRequest) {
     totalCount = rCount || 0
 
   } else {
-    // Name search: query recent_ratings first (46k rows, fast) then enrich from restaurants
-    let rq = supabaseAdmin
-      .from('recent_ratings')
-      .select('restaurant_slug,restaurant_name,city,state,google_rating_90d,google_rating_365d,google_rating_alltime,google_review_count_90d,google_review_count_365d,google_review_count', { count: 'exact' })
-      .order('google_review_count', { ascending: false })
-      .range(offset, offset + limit - 1)
+    // Name search strategy:
+    // 1. Certified restaurants — tiny dataset, always fast, always run first
+    // 2. recent_ratings with full-text search — faster than ilike on large tables
+    // Certified results always appear first regardless of order.
 
-    if (effectiveQ) rq = rq.ilike('restaurant_name', `%${effectiveQ}%`)
-    if (effectiveCity) rq = rq.ilike('city', `%${effectiveCity}%`)
-    if (state) rq = rq.eq('state', state.toUpperCase())
+    // Step 1: certified/featured lookup (small N, instant)
+    const certQuery = supabaseAdmin
+      .from('restaurants')
+      .select('id,name,slug,address,city,state,google_rating,google_review_count,google_photo_url,cuisine_type,is_certified,is_featured,is_founding_member,preferred_timeframe')
+      .or('is_certified.eq.true,is_featured.eq.true')
+      .limit(50)
+    const { data: certAll } = await certQuery
 
-    const { data: ratedRows, error: rErr, count: rCount } = await rq
-    if (rErr) {
-      if (rErr.message?.includes('timeout') || rErr.message?.includes('canceling')) {
-        return NextResponse.json({ results: [], total: 0, page, limit, pages: 0, timedOut: true })
+    // Filter certified matches client-side (avoid ilike on even a small set)
+    const qLower = (effectiveQ || '').toLowerCase()
+    const cityLower = (effectiveCity || '').toLowerCase()
+    const certMatches = (certAll || []).filter((r: Record<string, unknown>) => {
+      const nameMatch = !qLower || (r.name as string || '').toLowerCase().includes(qLower)
+      const cityMatch = !cityLower || (r.city as string || '').toLowerCase().includes(cityLower)
+      const stateMatch = !state || (r.state as string || '').toUpperCase() === state.toUpperCase()
+      return nameMatch && cityMatch && stateMatch
+    })
+
+    const certSlugs = new Set(certMatches.map((r: Record<string, unknown>) => r.slug as string))
+
+    // Step 2: recent_ratings full-text search (faster than ilike)
+    let ratedRows: Record<string, unknown>[] = []
+    let rCount = 0
+    if (effectiveQ) {
+      const ftsQuery = effectiveQ.trim().split(/\s+/).map((w: string) => w + ':*').join(' & ')
+      let rq = supabaseAdmin
+        .from('recent_ratings')
+        .select('restaurant_slug,restaurant_name,city,state,google_rating_90d,google_rating_365d,google_rating_alltime,google_review_count_90d,google_review_count_365d,google_review_count', { count: 'estimated' })
+        .textSearch('restaurant_name', ftsQuery, { type: 'plain', config: 'english' })
+        .order('google_review_count', { ascending: false })
+        .limit(limit)
+      if (effectiveCity) rq = rq.ilike('city', `%${effectiveCity}%`)
+      if (state) rq = rq.eq('state', state.toUpperCase())
+      const { data, count, error: rErr } = await rq
+      if (!rErr) {
+        ratedRows = (data || []).filter((r: Record<string, unknown>) => !certSlugs.has(r.restaurant_slug as string))
+        rCount = count || 0
       }
-      return NextResponse.json({ error: rErr.message }, { status: 500 })
     }
 
-    totalCount = rCount || 0
-    const rows = ratedRows || []
-
-    // Enrich with restaurant details (photo, address, certified status etc)
-    if (rows.length > 0) {
-      const slugs = rows.map((r: { restaurant_slug: string }) => r.restaurant_slug)
+    // Enrich rated rows with restaurant details
+    if (ratedRows.length > 0) {
+      const slugs = ratedRows.map((r: Record<string, unknown>) => r.restaurant_slug as string)
       const { data: rests } = await supabaseAdmin
         .from('restaurants')
-        .select('slug,address,google_photo_url,google_price_level,yelp_rating,yelp_review_count,cuisine_type,google_rating,google_review_count,is_certified,is_featured,is_founding_member,preferred_timeframe')
+        .select('slug,address,google_photo_url,cuisine_type,google_rating,google_review_count,is_certified,is_featured,is_founding_member,preferred_timeframe')
         .in('slug', slugs)
       const restMap: Record<string, Record<string, unknown>> = {}
       if (rests) { for (const r of rests) restMap[r.slug] = r }
-      results = rows.map((r: Record<string, unknown>) => ({ ...r, id: r.restaurant_slug, slug: r.restaurant_slug, name: r.restaurant_name, ...(restMap[r.restaurant_slug as string] || {}) }))
+      ratedRows = ratedRows.map((r: Record<string, unknown>) => ({ ...r, id: r.restaurant_slug, slug: r.restaurant_slug, name: r.restaurant_name, ...(restMap[r.restaurant_slug as string] || {}) }))
     }
 
-    // Also check certified restaurants table for places not in recent_ratings (e.g. newly added)
-    if (effectiveQ) {
-      const { data: certMatches } = await supabaseAdmin
-        .from('restaurants')
-        .select('id,name,slug,address,city,state,google_rating,google_review_count,google_photo_url,cuisine_type,is_certified,is_featured,is_founding_member,preferred_timeframe')
-        .ilike('name', `%${effectiveQ}%`)
-        .eq('is_certified', true)
-        .limit(10)
-      if (certMatches?.length) {
-        const existingSlugs = new Set(results.map((r: Record<string, unknown>) => r.slug))
-        const newCert = certMatches.filter((r: { slug: string }) => !existingSlugs.has(r.slug))
-        results = [...newCert.map((r: Record<string, unknown>) => ({ ...r, id: r.slug })), ...results]
-      }
-    }
+    // Merge: certified first, then organic
+    results = [
+      ...certMatches.map((r: Record<string, unknown>) => ({ ...r, id: r.slug })),
+      ...ratedRows,
+    ].slice(offset, offset + limit)
+    totalCount = certMatches.length + rCount
   }
 
   return NextResponse.json({
