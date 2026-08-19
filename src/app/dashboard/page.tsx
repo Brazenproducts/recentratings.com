@@ -311,7 +311,7 @@ function DashboardContent() {
                 { label: 'Disputed', value: disputedCount.toString(), icon: '🚩', warn: disputedCount > 0 },
                 { label: 'Page', value: stats?.pageSlug ? 'Live ✓' : 'Pending', icon: '🌐', link: stats?.pageSlug ? `/place/${stats.pageSlug}` : undefined },
               ].map(s => (
-                <div key={s.label} style={{ background: '#fff', borderRadius: 14, border: `1px solid ${s.warn ? '#fde68a' : '#e5e7eb'}`, padding: '16px 14px', textAlign: 'center', background: s.warn ? '#fffbeb' : '#fff' } as React.CSSProperties}>
+                <div key={s.label} style={{ background: s.warn ? '#fffbeb' : '#fff', borderRadius: 14, border: `1px solid ${s.warn ? '#fde68a' : '#e5e7eb'}`, padding: '16px 14px', textAlign: 'center' }}>
                   <div style={{ fontSize: 22, marginBottom: 4 }}>{s.icon}</div>
                   <div style={{ fontSize: 20, fontWeight: 900, color: '#111827', marginBottom: 2 }}>
                     {s.link ? <a href={s.link} target="_blank" style={{ color: '#1d4ed8', textDecoration: 'none' }}>{s.value}</a> : s.value}
