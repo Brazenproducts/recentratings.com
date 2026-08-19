@@ -33,6 +33,7 @@ interface Stats {
   reviewCount: number
   avgRating: number
   pageSlug?: string
+  googlePlaceId?: string | null
 }
 
 const PLAN_LABELS: Record<string, { label: string; color: string; bg: string }> = {
