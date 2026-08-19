@@ -241,7 +241,7 @@ export default function PlaceDetail({ place, ratings, reviews, cityAvg90d, cityA
                 <div>
                   <div style={{ fontSize: 38, fontWeight: 900, color: '#166534', lineHeight: 1 }}>★ {yotpoStats.combinedAvg.toFixed(2)}</div>
                   <div style={{ fontSize: 12, color: '#166534', fontWeight: 800, marginTop: 4 }}>{yotpoStats.combinedTotal.toLocaleString()} total reviews</div>
-                  {alltime && <div style={{ fontSize: 11, color: '#9ca3af', marginTop: 6 }}>Google: ★{alltime.toFixed(1)} (unverified)</div>}
+                  {place.google_rating && <div style={{ fontSize: 11, color: '#9ca3af', marginTop: 6 }}>Google: ★{place.google_rating.toFixed(1)} (unverified)</div>}
                 </div>
               ) : alltime ? (
                 <div>
@@ -293,10 +293,10 @@ export default function PlaceDetail({ place, ratings, reviews, cityAvg90d, cityA
             <div style={{ background: '#f0fdf4', borderRadius: 12, padding: '12px 16px', fontSize: 13, color: '#166534', fontWeight: 600, marginBottom: 12 }}>
               ✓ {yotpoStats.combinedTotal.toLocaleString()} total reviews · ★{yotpoStats.combinedAvg.toFixed(2)} RecentRatings score · {yotpoStats.total.toLocaleString()} verified buyers
             </div>
-            {/* Google shown as secondary comparison only */}
-            {alltime && (
+            {/* Google shown as secondary comparison only — use raw google_rating, not our computed alltime */}
+            {place.google_rating && (
               <div style={{ background: '#f8fafc', borderRadius: 10, padding: '10px 14px', fontSize: 12, color: '#9ca3af', display: 'flex', alignItems: 'center', gap: 6 }}>
-                <span>For comparison — Google (unverified reviewers): ★{alltime.toFixed(1)}</span>
+                <span>Google rating (includes unverified reviewers): ★{place.google_rating.toFixed(1)}</span>
               </div>
             )}
           </>
