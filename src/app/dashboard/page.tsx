@@ -197,12 +197,29 @@ function DashboardContent() {
   const [error, setError] = useState('')
   const [flagTarget, setFlagTarget] = useState<Review | null>(null)
 
-  // On mount, check if we already have a verified session
+  // On mount: check URL token first, then localStorage session
   useEffect(() => {
-    const savedEmail = localStorage.getItem('rr_business_email')
-    if (savedEmail) {
-      setLookupEmail(savedEmail)
-      loadDashboard(savedEmail)
+    const params = new URLSearchParams(window.location.search)
+    const urlToken = params.get('token')
+    if (urlToken) {
+      // Validate server-side and load dashboard
+      fetch(`/api/business/auth/token?token=${encodeURIComponent(urlToken)}`)
+        .then(r => r.json())
+        .then(d => {
+          if (d.valid && d.email) {
+            localStorage.setItem('rr_business_email', d.email)
+            setLookupEmail(d.email)
+            loadDashboard(d.email)
+            // Clean token from URL
+            window.history.replaceState({}, '', '/dashboard')
+          }
+        })
+    } else {
+      const savedEmail = localStorage.getItem('rr_business_email')
+      if (savedEmail) {
+        setLookupEmail(savedEmail)
+        loadDashboard(savedEmail)
+      }
     }
   }, [])
 

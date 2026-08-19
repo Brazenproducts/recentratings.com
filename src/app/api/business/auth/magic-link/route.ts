@@ -1,16 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
 import { supabaseAdmin } from '@/lib/supabase'
+import { signToken } from '../token/route'
 
 export async function POST(req: NextRequest) {
   try {
     const { email } = await req.json()
     if (!email) return NextResponse.json({ error: 'Email required' }, { status: 400 })
 
-    // Verify this email has a business account before sending anything
     const { data: business } = await supabaseAdmin
       .from('businesses')
-      .select('id, name, verified')
+      .select('id, name')
       .eq('email', email.toLowerCase())
       .maybeSingle()
 
@@ -21,27 +20,15 @@ export async function POST(req: NextRequest) {
       }, { status: 404 })
     }
 
-    // Send magic link via Supabase Auth
-    const supabaseAnon = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-    )
+    const token = signToken(email.toLowerCase())
+    const base = process.env.NEXT_PUBLIC_BASE_URL || 'https://recentratings.com'
+    const loginUrl = `${base}/dashboard?token=${token}`
 
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://recentratings.com'
-    const { error } = await supabaseAnon.auth.signInWithOtp({
-      email: email.toLowerCase(),
-      options: {
-        emailRedirectTo: `${baseUrl}/dashboard/verify`,
-        shouldCreateUser: true,
-      },
-    })
+    // TODO: Send loginUrl via email (Resend) once configured
+    // For now: return it in response so we can share directly
+    console.log(`Login link for ${email}: ${loginUrl}`)
 
-    if (error) {
-      console.error('Magic link error:', error)
-      return NextResponse.json({ error: 'Failed to send login link. Try again.' }, { status: 500 })
-    }
-
-    return NextResponse.json({ success: true })
+    return NextResponse.json({ success: true, loginUrl })
 
   } catch (err) {
     console.error('Auth error:', err)
