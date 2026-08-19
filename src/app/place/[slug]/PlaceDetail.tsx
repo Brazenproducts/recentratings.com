@@ -311,7 +311,7 @@ export default function PlaceDetail({ place, ratings, reviews, cityAvg90d, cityA
             {trend && (
               <div style={{ background: '#f8fafc', borderRadius: 12, padding: '12px 16px', fontSize: 13, color: trend.color, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 8 }}>
                 <span style={{ fontSize: 18 }}>{trend.arrow}</span>
-                <span>{place.name} is {trend.label}</span>
+                <span>{`${place.name} is ${trend.label}`}</span>
               </div>
             )}
           </>
@@ -339,7 +339,7 @@ export default function PlaceDetail({ place, ratings, reviews, cityAvg90d, cityA
                 <h3 style={{ fontSize: 15, fontWeight: 800, color: '#1e40af', margin: '0 0 6px' }}>Last 90 Days: ★ {score90d.toFixed(1)} — {scoreLabel(score90d)}</h3>
                 <p style={{ fontSize: 14, color: '#374151', margin: 0, lineHeight: 1.7 }}>
                   Based on {count90d?.toLocaleString() ?? 'recent'} Google reviews submitted in the last 90 days,
-                  {' '}{place.name} is currently averaging {score90d.toFixed(1)} out of 5 stars.
+                  {`${place.name} is currently averaging ${score90d.toFixed(1)} out of 5 stars.`}
                   {vs90d && cityAvg90d && ` This is ${vs90d} the ${place.city} city average of ★${cityAvg90d.toFixed(1)} for the same period.`}
                   {' '}The 90-day score is the most accurate signal of what a current visit is likely to be like —
                   it reflects recent staffing, management, and quality more than any longer window.
@@ -352,7 +352,7 @@ export default function PlaceDetail({ place, ratings, reviews, cityAvg90d, cityA
                 <h3 style={{ fontSize: 15, fontWeight: 800, color: '#374151', margin: '0 0 6px' }}>Last Year: ★ {score365d.toFixed(1)} — {scoreLabel(score365d)}</h3>
                 <p style={{ fontSize: 14, color: '#374151', margin: 0, lineHeight: 1.7 }}>
                   Across {count365d?.toLocaleString() ?? 'all'} reviews over the past 12 months,
-                  {' '}{place.name} holds a {score365d.toFixed(1)}-star average.
+                  {`${place.name} holds a ${score365d.toFixed(1)}-star average.`}
                   {score90d && score365d && Math.abs(score90d - score365d) >= 0.2 && (
                     score90d > score365d
                       ? ` The recent 90-day score of ★${score90d.toFixed(1)} is higher than the 1-year average, suggesting the experience has improved recently.`
@@ -473,7 +473,7 @@ export default function PlaceDetail({ place, ratings, reviews, cityAvg90d, cityA
               </h3>
               <p style={{ fontSize: 14, color: '#374151', margin: 0, lineHeight: 1.7 }}>
                 Based on the most recent {count90d ?? 'available'} Google reviews from the last 90 days,
-                {' '}{place.name} is rated ★{score90d.toFixed(1)} — which is {scoreLabel(score90d).toLowerCase()}.
+                {`${place.name} is rated ★${score90d.toFixed(1)} — which is ${scoreLabel(score90d).toLowerCase()}.`}
                 {vs90d && cityAvg90d ? ` That puts it ${vs90d} the ${place.city} average of ★${cityAvg90d.toFixed(1)}.` : ''}
               </p>
             </div>
@@ -485,8 +485,7 @@ export default function PlaceDetail({ place, ratings, reviews, cityAvg90d, cityA
                 What is {place.name}&apos;s overall Google rating?
               </h3>
               <p style={{ fontSize: 14, color: '#374151', margin: 0, lineHeight: 1.7 }}>
-                {place.name} has an all-time Google rating of ★{alltime.toFixed(1)} based on {countAll?.toLocaleString() ?? 'many'} total reviews.
-                {' '}This is the cumulative average across all reviews ever submitted.
+                {`${place.name} has an all-time Google rating of ★${alltime.toFixed(1)} based on ${countAll?.toLocaleString() ?? 'many'} total reviews. This is the cumulative average across all reviews ever submitted.`}
               </p>
             </div>
           )}
@@ -512,7 +511,7 @@ export default function PlaceDetail({ place, ratings, reviews, cityAvg90d, cityA
               Where is {place.name} located?
             </h3>
             <p style={{ fontSize: 14, color: '#374151', margin: 0, lineHeight: 1.7 }}>
-              {place.name} is located at {place.address}, {place.city}, {place.state} {place.zip ?? ''}.
+              {`${place.name} is located at ${place.address}, ${place.city}, ${place.state} ${place.zip ?? ''}.`}
               {place.phone ? ` You can reach them by phone at ${place.phone}.` : ''}
               {place.lat && place.lng ? ' Use the directions link above to get turn-by-turn navigation.' : ''}
             </p>
@@ -584,7 +583,7 @@ export default function PlaceDetail({ place, ratings, reviews, cityAvg90d, cityA
       <div style={{ background: 'linear-gradient(135deg, #1e40af 0%, #1d4ed8 100%)', borderRadius: 18, padding: 28, textAlign: 'center', color: '#fff' }}>
         <h2 style={{ fontSize: 20, fontWeight: 900, margin: '0 0 8px', color: '#fff' }}>Have you visited {place.name}?</h2>
         <p style={{ fontSize: 14, color: '#bfdbfe', margin: '0 0 20px', lineHeight: 1.6 }}>
-          Your honest review helps others make great decisions — and helps {place.name} earn the recognition they deserve.
+          {`Your honest review helps others make great decisions — and helps ${place.name} earn the recognition they deserve.`}
         </p>
         <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
           {place.google_place_id && (
