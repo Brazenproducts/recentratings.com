@@ -11,6 +11,7 @@ interface Place {
   cuisine_type?: string
   phone?: string
   website?: string
+  google_place_id?: string
   lat?: number
   lng?: number
   google_rating?: number
@@ -507,6 +508,46 @@ export default function PlaceDetail({ place, ratings, reviews, cityAvg90d, cityA
           </div>
         </div>
       )}
+
+      {/* ── LEAVE A REVIEW CTA ──────────────────────────────────────────── */}
+      <div style={{ background: 'linear-gradient(135deg, #1e40af 0%, #1d4ed8 100%)', borderRadius: 18, padding: 28, textAlign: 'center', color: '#fff' }}>
+        <h2 style={{ fontSize: 20, fontWeight: 900, margin: '0 0 8px', color: '#fff' }}>Have you visited {place.name}?</h2>
+        <p style={{ fontSize: 14, color: '#bfdbfe', margin: '0 0 20px', lineHeight: 1.6 }}>
+          Your honest review helps others make great decisions — and helps {place.name} earn the recognition they deserve.
+        </p>
+        <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
+          {place.google_place_id && (
+            <a
+              href={`https://search.google.com/local/writereview?placeid=${place.google_place_id}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: '#fff', color: '#1e40af', fontWeight: 800, fontSize: 14, padding: '12px 24px', borderRadius: 12, textDecoration: 'none', boxShadow: '0 2px 8px rgba(0,0,0,0.15)' }}
+            >
+              ⭐ Write a Google Review
+            </a>
+          )}
+          {place.yelp_url && (
+            <a
+              href={place.yelp_url}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: '#d32323', color: '#fff', fontWeight: 800, fontSize: 14, padding: '12px 24px', borderRadius: 12, textDecoration: 'none', boxShadow: '0 2px 8px rgba(0,0,0,0.15)' }}
+            >
+              🍽 Write a Yelp Review
+            </a>
+          )}
+          {!place.google_place_id && !place.yelp_url && (
+            <a
+              href={`https://www.google.com/maps/search/${encodeURIComponent(place.name + ' ' + place.city + ' ' + place.state)}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: '#fff', color: '#1e40af', fontWeight: 800, fontSize: 14, padding: '12px 24px', borderRadius: 12, textDecoration: 'none', boxShadow: '0 2px 8px rgba(0,0,0,0.15)' }}
+            >
+              ⭐ Find on Google Maps
+            </a>
+          )}
+        </div>
+      </div>
 
       {/* ── ABOUT RECENTRATINGS ───────────────────────────────────────────── */}
       <div style={{ background: '#eff6ff', borderRadius: 18, border: '1px solid #bfdbfe', padding: 24 }}>
