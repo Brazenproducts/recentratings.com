@@ -209,9 +209,9 @@ function DashboardContent() {
           if (d.valid && d.email) {
             localStorage.setItem('rr_business_email', d.email)
             setLookupEmail(d.email)
-            loadDashboard(d.email)
-            // Clean token from URL
-            window.history.replaceState({}, '', '/dashboard')
+            loadDashboard(d.email).then(() => {
+              window.history.replaceState({}, '', '/dashboard')
+            })
           }
         })
     } else {
@@ -369,7 +369,7 @@ function DashboardContent() {
             {/* Stats row */}
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: 14 }}>
               {[
-                { label: 'Live Reviews', value: activeReviews.length.toString(), icon: '⭐' },
+                { label: 'Live Reviews', value: stats ? Math.max(0, (stats.reviewCount || 0) - disputedCount).toString() : '…', icon: '⭐' },
                 { label: 'Avg Rating', value: stats?.avgRating ? `★${stats.avgRating.toFixed(1)}` : '—', icon: '📊' },
                 { label: 'Disputed', value: disputedCount.toString(), icon: '🚩', warn: disputedCount > 0 },
                 { label: 'Page', value: stats?.pageSlug ? 'Live ✓' : 'Pending', icon: '🌐', link: stats?.pageSlug ? `/place/${stats.pageSlug}` : undefined },
