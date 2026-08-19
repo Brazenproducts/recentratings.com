@@ -219,38 +219,52 @@ export default async function PlacePage({ params }: Props) {
     .eq('restaurant_slug', slug)
     .maybeSingle()
 
-  // Fetch non-disputed reviews only for public page
-  const reviewQuery = supabaseAdmin
-    .from('reviews_cache')
-    .select('id,author_name,rating,text,time_published,source')
-    .eq('google_place_id', place.google_place_id)
-    .or('disputed.is.null,disputed.eq.false')
-    .order('time_published', { ascending: false })
-    .limit(50)
+  // Fetch reviews — try with disputed filter first, fall back without it
+  // (disputed column may not exist until Supabase SQL migration is run)
+  let reviews: Record<string, unknown>[] | null = null
+  let disputedCount: number | null = 0
 
-  // Count disputed reviews for transparency note
-  const disputedQuery = supabaseAdmin
-    .from('reviews_cache')
-    .select('id', { count: 'exact', head: true })
-    .eq('google_place_id', place.google_place_id)
-    .eq('disputed', true)
+  try {
+    const { data, error } = await supabaseAdmin
+      .from('reviews_cache')
+      .select('id,author_name,rating,text,time_published,source')
+      .eq('google_place_id', place.google_place_id)
+      .or('disputed.is.null,disputed.eq.false')
+      .order('time_published', { ascending: false })
+      .limit(50)
+    if (error) throw error
+    reviews = data
+
+    const { count } = await supabaseAdmin
+      .from('reviews_cache')
+      .select('id', { count: 'exact', head: true })
+      .eq('google_place_id', place.google_place_id)
+      .eq('disputed', true)
+    disputedCount = count || 0
+  } catch {
+    // Column doesn't exist yet — fetch without disputed filter
+    const { data } = await supabaseAdmin
+      .from('reviews_cache')
+      .select('id,author_name,rating,text,time_published,source')
+      .eq('google_place_id', place.google_place_id)
+      .order('time_published', { ascending: false })
+      .limit(50)
+    reviews = data
+    disputedCount = 0
+  }
 
   // Yotpo aggregate stats (all reviews, not just first 50)
-  const yotpoStatsQuery = place.google_place_id ? supabaseAdmin
-    .from('reviews_cache')
-    .select('rating,time_published')
-    .eq('google_place_id', place.google_place_id)
-    .eq('source', 'yotpo')
-    .or('disputed.is.null,disputed.eq.false') : null
-
-  const [{ data: reviews }, { count: disputedCount }, yotpoResult] = await Promise.all([
-    reviewQuery,
-    disputedQuery,
-    yotpoStatsQuery ?? Promise.resolve({ data: null }),
-  ])
+  let yotpoAll: { rating: number; time_published: string }[] = []
+  if (place.google_place_id) {
+    const { data } = await supabaseAdmin
+      .from('reviews_cache')
+      .select('rating,time_published')
+      .eq('google_place_id', place.google_place_id)
+      .eq('source', 'yotpo')
+    yotpoAll = (data || []) as { rating: number; time_published: string }[]
+  }
 
   // Compute Yotpo time-bucket stats
-  const yotpoAll = yotpoResult?.data || []
   const now = Date.now()
   const yotpoStats = yotpoAll.length > 0 ? {
     total: yotpoAll.length,
