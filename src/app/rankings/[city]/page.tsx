@@ -1,5 +1,7 @@
 import { Metadata } from 'next'
 import { supabaseAdmin } from '@/lib/supabase'
+
+export const revalidate = 3600 // Cache at CDN edge, rebuild every hour
 import { notFound } from 'next/navigation'
 
 interface PageProps {

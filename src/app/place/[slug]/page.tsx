@@ -2,6 +2,8 @@ import { Metadata } from 'next'
 import { supabaseAdmin } from '@/lib/supabase'
 import PlaceDetail from './PlaceDetail'
 
+export const revalidate = 3600 // Cache at CDN edge, rebuild every hour
+
 interface Props {
   params: Promise<{ slug: string }>
 }
