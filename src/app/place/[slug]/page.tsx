@@ -235,7 +235,30 @@ export default async function PlacePage({ params }: Props) {
     .eq('google_place_id', place.google_place_id)
     .eq('disputed', true)
 
-  const [{ data: reviews }, { count: disputedCount }] = await Promise.all([reviewQuery, disputedQuery])
+  // Yotpo aggregate stats (all reviews, not just first 50)
+  const yotpoStatsQuery = place.google_place_id ? supabaseAdmin
+    .from('reviews_cache')
+    .select('rating,time_published')
+    .eq('google_place_id', place.google_place_id)
+    .eq('source', 'yotpo')
+    .or('disputed.is.null,disputed.eq.false') : null
+
+  const [{ data: reviews }, { count: disputedCount }, yotpoResult] = await Promise.all([
+    reviewQuery,
+    disputedQuery,
+    yotpoStatsQuery ?? Promise.resolve({ data: null }),
+  ])
+
+  // Compute Yotpo time-bucket stats
+  const yotpoAll = yotpoResult?.data || []
+  const now = Date.now()
+  const yotpoStats = yotpoAll.length > 0 ? {
+    total: yotpoAll.length,
+    avg: parseFloat((yotpoAll.reduce((s: number, r: {rating: number}) => s + (r.rating || 0), 0) / yotpoAll.length).toFixed(2)),
+    d30:  yotpoAll.filter((r: {time_published: string}) => r.time_published && (now - new Date(r.time_published).getTime()) < 30  * 86400000).length,
+    d180: yotpoAll.filter((r: {time_published: string}) => r.time_published && (now - new Date(r.time_published).getTime()) < 180 * 86400000).length,
+    d365: yotpoAll.filter((r: {time_published: string}) => r.time_published && (now - new Date(r.time_published).getTime()) < 365 * 86400000).length,
+  } : null
 
   // Parse hours if stored as JSON string
   if (place.hours && typeof place.hours === 'string') {
@@ -354,6 +377,7 @@ export default async function PlacePage({ params }: Props) {
         cityAvgAlltime={cityAvgAlltime}
         nearbyPlaces={nearbyPlaces}
         disputedCount={disputedCount || 0}
+        yotpoStats={yotpoStats}
       />
     </>
   )

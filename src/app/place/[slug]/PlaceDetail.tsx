@@ -64,6 +64,14 @@ interface NearbyPlace {
   cuisine_type?: string
 }
 
+interface YotpoStats {
+  total: number
+  avg: number
+  d30: number
+  d180: number
+  d365: number
+}
+
 interface Props {
   place: Place
   ratings: Ratings | null
@@ -72,6 +80,7 @@ interface Props {
   cityAvgAlltime?: number | null
   nearbyPlaces?: NearbyPlace[]
   disputedCount?: number
+  yotpoStats?: YotpoStats | null
 }
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
@@ -157,7 +166,15 @@ function ScoreCard({ label, score, reviewCount, highlight }: {
 
 // ─── Main Component ───────────────────────────────────────────────────────────
 
-export default function PlaceDetail({ place, ratings, reviews, cityAvg90d, cityAvgAlltime, nearbyPlaces = [], disputedCount = 0 }: Props) {
+// Parse product name from Yotpo review text (packed as "text\n\n§§Product Name")
+function parseYotpoText(text?: string): { body: string; product: string | null } {
+  if (!text) return { body: '', product: null }
+  const sep = text.indexOf('\n\n§§')
+  if (sep === -1) return { body: text, product: null }
+  return { body: text.slice(0, sep).trim(), product: text.slice(sep + 4).trim() }
+}
+
+export default function PlaceDetail({ place, ratings, reviews, cityAvg90d, cityAvgAlltime, nearbyPlaces = [], disputedCount = 0, yotpoStats }: Props) {
   const alltime = ratings?.google_rating_alltime ?? place.google_rating
   const score90d = ratings?.google_rating_90d
   const score365d = ratings?.google_rating_365d
@@ -331,14 +348,48 @@ export default function PlaceDetail({ place, ratings, reviews, cityAvg90d, cityA
         </div>
       )}
 
+      {/* ── VERIFIED BUYER SUMMARY (Yotpo) ──────────────────────────────── */}
+      {yotpoStats && yotpoStats.total > 0 && (
+        <div style={{ background: 'linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%)', borderRadius: 18, border: '1px solid #86efac', padding: 24, marginBottom: 4 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14, flexWrap: 'wrap' }}>
+            <h2 style={{ fontSize: 17, fontWeight: 900, color: '#166534', margin: 0 }}>✓ Verified Buyer Reviews</h2>
+            <span style={{ fontSize: 13, color: '#166534', background: '#bbf7d0', borderRadius: 20, padding: '3px 12px', fontWeight: 800, marginLeft: 'auto' }}>
+              {yotpoStats.total.toLocaleString()} reviews · ★{yotpoStats.avg.toFixed(2)} avg
+            </span>
+          </div>
+          <p style={{ fontSize: 13, color: '#166534', margin: '0 0 16px', lineHeight: 1.6 }}>
+            Every review below was submitted by a confirmed purchaser. Unlike Google reviews, unverified accounts cannot post here.
+          </p>
+          <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+            {[
+              { label: 'Last 30 days', count: yotpoStats.d30 },
+              { label: 'Last 6 months', count: yotpoStats.d180 },
+              { label: 'Last year', count: yotpoStats.d365 },
+              { label: 'All time', count: yotpoStats.total },
+            ].map(b => (
+              <div key={b.label} style={{ background: '#fff', borderRadius: 12, border: '1px solid #86efac', padding: '10px 16px', textAlign: 'center', minWidth: 90 }}>
+                <div style={{ fontSize: 22, fontWeight: 900, color: '#166534' }}>{b.count.toLocaleString()}</div>
+                <div style={{ fontSize: 11, color: '#4b7c59', fontWeight: 600, marginTop: 2 }}>{b.label}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* ── RECENT REVIEWS ────────────────────────────────────────────────── */}
       {reviews.length > 0 && (
         <div style={{ background: '#fff', borderRadius: 18, border: '1px solid #e5e7eb', boxShadow: '0 1px 4px rgba(0,0,0,0.06)', padding: 24, marginBottom: 20 }}>
-          <h2 style={{ fontSize: 18, fontWeight: 900, color: '#111827', margin: '0 0 16px' }}>Customer Reviews</h2>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16, flexWrap: 'wrap', gap: 8 }}>
+            <h2 style={{ fontSize: 18, fontWeight: 900, color: '#111827', margin: 0 }}>Customer Reviews</h2>
+            {yotpoStats && yotpoStats.total > 0 && (
+              <span style={{ fontSize: 12, color: '#6b7280' }}>Showing 50 most recent of {yotpoStats.total.toLocaleString()}+ total</span>
+            )}
+          </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
             {reviews.map((review, i) => {
               const isYotpo = review.source === 'yotpo' || review.source === 'judgeme'
               const isGoogle = !isYotpo
+              const { body, product } = isYotpo ? parseYotpoText(review.text) : { body: review.text || '', product: null }
               return (
               <div key={review.id || i} style={{ borderBottom: i < reviews.length - 1 ? '1px solid #f3f4f6' : 'none', paddingBottom: i < reviews.length - 1 ? 20 : 0 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6, flexWrap: 'wrap' }}>
@@ -356,8 +407,13 @@ export default function PlaceDetail({ place, ratings, reviews, cityAvg90d, cityA
                     <span style={{ fontSize: 12, color: '#9ca3af', marginLeft: 'auto' }}>{monthsAgo(review.time_published)}</span>
                   )}
                 </div>
-                {review.text && (
-                  <p style={{ fontSize: 14, color: '#374151', margin: 0, lineHeight: 1.7 }}>{review.text}</p>
+                {product && (
+                  <div style={{ fontSize: 12, color: '#7c3aed', background: '#f5f3ff', borderRadius: 6, padding: '3px 9px', marginBottom: 6, display: 'inline-block', fontWeight: 600 }}>
+                    🛒 {product}
+                  </div>
+                )}
+                {body && (
+                  <p style={{ fontSize: 14, color: '#374151', margin: 0, lineHeight: 1.7 }}>{body}</p>
                 )}
               </div>
             )})}
