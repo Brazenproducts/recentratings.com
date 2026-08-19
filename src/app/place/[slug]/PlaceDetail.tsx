@@ -51,6 +51,7 @@ interface Review {
   text?: string
   time_published?: string
   created_at?: string
+  source?: string
 }
 
 interface NearbyPlace {
@@ -332,14 +333,23 @@ export default function PlaceDetail({ place, ratings, reviews, cityAvg90d, cityA
       {/* ── RECENT REVIEWS ────────────────────────────────────────────────── */}
       {reviews.length > 0 && (
         <div style={{ background: '#fff', borderRadius: 18, border: '1px solid #e5e7eb', boxShadow: '0 1px 4px rgba(0,0,0,0.06)', padding: 24, marginBottom: 20 }}>
-          <h2 style={{ fontSize: 18, fontWeight: 900, color: '#111827', margin: '0 0 16px' }}>Recent Google Reviews</h2>
+          <h2 style={{ fontSize: 18, fontWeight: 900, color: '#111827', margin: '0 0 16px' }}>Customer Reviews</h2>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
-            {reviews.map((review, i) => (
+            {reviews.map((review, i) => {
+              const isYotpo = review.source === 'yotpo' || review.source === 'judgeme'
+              const isGoogle = !isYotpo
+              return (
               <div key={review.id || i} style={{ borderBottom: i < reviews.length - 1 ? '1px solid #f3f4f6' : 'none', paddingBottom: i < reviews.length - 1 ? 20 : 0 }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6, flexWrap: 'wrap' }}>
                   <span style={{ fontWeight: 700, fontSize: 14, color: '#111827' }}>{review.author_name || 'Anonymous'}</span>
                   {review.rating && (
                     <span style={{ color: '#f59e0b', fontSize: 13 }}>{'★'.repeat(review.rating)}{'☆'.repeat(5 - review.rating)}</span>
+                  )}
+                  {isYotpo && (
+                    <span style={{ fontSize: 11, fontWeight: 700, color: '#166534', background: '#dcfce7', borderRadius: 6, padding: '2px 7px', letterSpacing: 0.3 }}>✓ Verified Buyer</span>
+                  )}
+                  {isGoogle && (
+                    <span style={{ fontSize: 11, fontWeight: 600, color: '#1d4ed8', background: '#eff6ff', borderRadius: 6, padding: '2px 7px' }}>Google</span>
                   )}
                   {review.time_published && (
                     <span style={{ fontSize: 12, color: '#9ca3af', marginLeft: 'auto' }}>{monthsAgo(review.time_published)}</span>
@@ -349,7 +359,7 @@ export default function PlaceDetail({ place, ratings, reviews, cityAvg90d, cityA
                   <p style={{ fontSize: 14, color: '#374151', margin: 0, lineHeight: 1.7 }}>{review.text}</p>
                 )}
               </div>
-            ))}
+            )})}
           </div>
         </div>
       )}
