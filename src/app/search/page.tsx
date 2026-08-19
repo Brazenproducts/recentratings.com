@@ -35,7 +35,7 @@ function RatingPill({ value, label }: { value: number; label: string }) {
   const color = value >= 4.5 ? '#166534' : value >= 4.0 ? '#1e40af' : value >= 3.5 ? '#854d0e' : '#991b1b'
   return (
     <span style={{ background: bg, color, fontSize: 12, fontWeight: 700, padding: '3px 10px', borderRadius: 100, display: 'inline-flex', alignItems: 'center', gap: 4 }}>
-      ★ {value.toFixed(1)} <span style={{ fontWeight: 400, opacity: 0.7 }}>{label}</span>
+      ★ {Number.isInteger(value) ? value.toFixed(1) : value.toFixed(2)} <span style={{ fontWeight: 400, opacity: 0.7 }}>{label}</span>
     </span>
   )
 }

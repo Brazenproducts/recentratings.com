@@ -174,6 +174,23 @@ export async function GET(req: NextRequest) {
       return nameMatch && cityMatch && stateMatch
     })
 
+    // Enrich certified matches with recent_ratings (has our real combined score, not just Google's)
+    if (certMatches.length > 0) {
+      const certSlugList = certMatches.map((r: Record<string, unknown>) => r.slug as string)
+      const { data: certRatings } = await supabaseAdmin
+        .from('recent_ratings')
+        .select('restaurant_slug,google_rating_alltime,google_rating_90d,google_rating_365d,google_review_count,google_review_count_90d,google_review_count_365d')
+        .in('restaurant_slug', certSlugList)
+      if (certRatings) {
+        const rMap: Record<string, Record<string, unknown>> = {}
+        for (const r of certRatings) rMap[r.restaurant_slug] = r
+        certMatches.forEach((r: Record<string, unknown>, i: number) => {
+          const rr = rMap[r.slug as string]
+          if (rr) Object.assign(certMatches[i], rr)
+        })
+      }
+    }
+
     const certSlugs = new Set(certMatches.map((r: Record<string, unknown>) => r.slug as string))
 
     // Step 2: recent_ratings full-text search (faster than ilike)

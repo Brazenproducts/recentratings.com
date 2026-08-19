@@ -111,6 +111,15 @@ function formatDate(iso: string): string {
   } catch { return iso }
 }
 
+// Show 2 decimal places when toFixed(1) would misleadingly round (e.g. 4.97 → '5.0')
+function fmtScore(v?: number): string {
+  if (v === undefined || v === null) return '—'
+  if (Number.isInteger(v)) return v.toFixed(1)
+  const d1 = parseFloat(v.toFixed(1))
+  const d2 = parseFloat(v.toFixed(2))
+  return d1 !== d2 ? v.toFixed(2) : v.toFixed(1)
+}
+
 function monthsAgo(iso: string): string {
   try {
     const diff = Date.now() - new Date(iso).getTime()
@@ -153,7 +162,7 @@ function ScoreCard({ label, score, reviewCount, highlight }: {
       <div style={{ fontSize: 11, fontWeight: 700, color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 6 }}>{label}</div>
       {score ? (
         <>
-          <div style={{ fontSize: 28, fontWeight: 900, color: textColor }}>★ {score.toFixed(1)}</div>
+          <div style={{ fontSize: 28, fontWeight: 900, color: textColor }}>★ {fmtScore(score)}</div>
           <div style={{ fontSize: 11, fontWeight: 600, color: textColor, marginTop: 2 }}>{scoreLabel(score)}</div>
           {reviewCount !== undefined && (
             <div style={{ fontSize: 11, color: '#9ca3af', marginTop: 4 }}>{reviewCount.toLocaleString()} review{reviewCount !== 1 ? 's' : ''}</div>
@@ -245,7 +254,7 @@ export default function PlaceDetail({ place, ratings, reviews, cityAvg90d, cityA
                 </div>
               ) : alltime ? (
                 <div>
-                  <div style={{ fontSize: 38, fontWeight: 900, color: alltime >= 4.5 ? '#166534' : alltime >= 4.0 ? '#1e40af' : '#854d0e', lineHeight: 1 }}>★ {alltime.toFixed(1)}</div>
+                  <div style={{ fontSize: 38, fontWeight: 900, color: alltime >= 4.5 ? '#166534' : alltime >= 4.0 ? '#1e40af' : '#854d0e', lineHeight: 1 }}>★ {fmtScore(alltime)}</div>
                   <div style={{ fontSize: 11, color: '#9ca3af', marginTop: 4 }}>{countAll ? countAll.toLocaleString() + ' reviews' : 'all-time rating'}</div>
                 </div>
               ) : null}
@@ -338,11 +347,11 @@ export default function PlaceDetail({ place, ratings, reviews, cityAvg90d, cityA
           <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
             {score90d && (
               <div>
-                <h3 style={{ fontSize: 15, fontWeight: 800, color: '#1e40af', margin: '0 0 6px' }}>Last 90 Days: ★ {score90d.toFixed(1)} — {scoreLabel(score90d)}</h3>
+                <h3 style={{ fontSize: 15, fontWeight: 800, color: '#1e40af', margin: '0 0 6px' }}>Last 90 Days: ★ {fmtScore(score90d)} — {scoreLabel(score90d)}</h3>
                 <p style={{ fontSize: 14, color: '#374151', margin: 0, lineHeight: 1.7 }}>
                   Based on {count90d?.toLocaleString() ?? 'recent'} Google reviews submitted in the last 90 days,
-                  {`${place.name} is currently averaging ${score90d.toFixed(1)} out of 5 stars.`}
-                  {vs90d && cityAvg90d && ` This is ${vs90d} the ${place.city} city average of ★${cityAvg90d.toFixed(1)} for the same period.`}
+                  {`${place.name} is currently averaging ${fmtScore(score90d)} out of 5 stars.`}
+                  {vs90d && cityAvg90d && ` This is ${vs90d} the ${place.city} city average of ★${fmtScore(cityAvg90d)} for the same period.`}
                   {' '}The 90-day score is the most accurate signal of what a current visit is likely to be like —
                   it reflects recent staffing, management, and quality more than any longer window.
                 </p>
@@ -351,14 +360,14 @@ export default function PlaceDetail({ place, ratings, reviews, cityAvg90d, cityA
 
             {score365d && (
               <div>
-                <h3 style={{ fontSize: 15, fontWeight: 800, color: '#374151', margin: '0 0 6px' }}>Last Year: ★ {score365d.toFixed(1)} — {scoreLabel(score365d)}</h3>
+                <h3 style={{ fontSize: 15, fontWeight: 800, color: '#374151', margin: '0 0 6px' }}>Last Year: ★ {fmtScore(score365d)} — {scoreLabel(score365d)}</h3>
                 <p style={{ fontSize: 14, color: '#374151', margin: 0, lineHeight: 1.7 }}>
                   Across {count365d?.toLocaleString() ?? 'all'} reviews over the past 12 months,
-                  {`${place.name} holds a ${score365d.toFixed(1)}-star average.`}
+                  {`${place.name} holds a ${fmtScore(score365d)}-star average.`}
                   {score90d && score365d && Math.abs(score90d - score365d) >= 0.2 && (
                     score90d > score365d
-                      ? ` The recent 90-day score of ★${score90d.toFixed(1)} is higher than the 1-year average, suggesting the experience has improved recently.`
-                      : ` The recent 90-day score of ★${score90d.toFixed(1)} is lower than the 1-year average — worth keeping in mind for a current visit.`
+                      ? ` The recent 90-day score of ★${fmtScore(score90d)} is higher than the 1-year average, suggesting the experience has improved recently.`
+                      : ` The recent 90-day score of ★${fmtScore(score90d)} is lower than the 1-year average — worth keeping in mind for a current visit.`
                   )}
                   {' '}A full year of reviews smooths out seasonal swings and gives a broader picture of consistency.
                 </p>
@@ -367,11 +376,11 @@ export default function PlaceDetail({ place, ratings, reviews, cityAvg90d, cityA
 
             {alltime && (
               <div>
-                <h3 style={{ fontSize: 15, fontWeight: 800, color: '#374151', margin: '0 0 6px' }}>All Time: ★ {alltime.toFixed(1)} — {scoreLabel(alltime)}</h3>
+                <h3 style={{ fontSize: 15, fontWeight: 800, color: '#374151', margin: '0 0 6px' }}>All Time: ★ {fmtScore(alltime)} — {scoreLabel(alltime)}</h3>
                 <p style={{ fontSize: 14, color: '#374151', margin: 0, lineHeight: 1.7 }}>
-                  {place.name}&apos;s all-time Google rating of {alltime.toFixed(1)} stars is based on
+                  {place.name}&apos;s all-time Google rating of {fmtScore(alltime)} stars is based on
                   {' '}{countAll?.toLocaleString() ?? 'all'} total reviews since the business opened.
-                  {vsAll && cityAvgAlltime && ` This is ${vsAll} the ${place.city} city average of ★${cityAvgAlltime.toFixed(1)} across all tracked restaurants.`}
+                  {vsAll && cityAvgAlltime && ` This is ${vsAll} the ${place.city} city average of ★${fmtScore(cityAvgAlltime)} across all tracked restaurants.`}
                   {' '}While the all-time score provides historical context, it can reflect conditions from years ago.
                   RecentRatings recommends weighting the 90-day score more heavily when deciding whether to visit.
                 </p>
@@ -475,8 +484,8 @@ export default function PlaceDetail({ place, ratings, reviews, cityAvg90d, cityA
               </h3>
               <p style={{ fontSize: 14, color: '#374151', margin: 0, lineHeight: 1.7 }}>
                 Based on the most recent {count90d ?? 'available'} Google reviews from the last 90 days,
-                {`${place.name} is rated ★${score90d.toFixed(1)} — which is ${scoreLabel(score90d).toLowerCase()}.`}
-                {vs90d && cityAvg90d ? ` That puts it ${vs90d} the ${place.city} average of ★${cityAvg90d.toFixed(1)}.` : ''}
+                {`${place.name} is rated ★${fmtScore(score90d)} — which is ${scoreLabel(score90d).toLowerCase()}.`}
+                {vs90d && cityAvg90d ? ` That puts it ${vs90d} the ${place.city} average of ★${fmtScore(cityAvg90d)}.` : ''}
               </p>
             </div>
           )}
@@ -499,10 +508,10 @@ export default function PlaceDetail({ place, ratings, reviews, cityAvg90d, cityA
               </h3>
               <p style={{ fontSize: 14, color: '#374151', margin: 0, lineHeight: 1.7 }}>
                 {score90d > score365d
-                  ? `${place.name} appears to be improving. The 90-day score of ★${score90d.toFixed(1)} is higher than the 1-year average of ★${score365d.toFixed(1)}, suggesting recent experiences have been better than the longer-term trend.`
+                  ? `${place.name} appears to be improving. The 90-day score of ★${fmtScore(score90d)} is higher than the 1-year average of ★${fmtScore(score365d)}, suggesting recent experiences have been better than the longer-term trend.`
                   : score90d < score365d
-                  ? `${place.name}'s recent scores are slightly lower than its 1-year average. The last 90 days show ★${score90d.toFixed(1)} versus ★${score365d.toFixed(1)} for the past year. This could reflect a temporary dip or an ongoing trend — check the individual reviews for more context.`
-                  : `${place.name} has been very consistent. The 90-day score of ★${score90d.toFixed(1)} closely matches its 1-year average of ★${score365d.toFixed(1)}.`
+                  ? `${place.name}'s recent scores are slightly lower than its 1-year average. The last 90 days show ★${fmtScore(score90d)} versus ★${fmtScore(score365d)} for the past year. This could reflect a temporary dip or an ongoing trend — check the individual reviews for more context.`
+                  : `${place.name} has been very consistent. The 90-day score of ★${fmtScore(score90d)} closely matches its 1-year average of ★${fmtScore(score365d)}.`
                 }
               </p>
             </div>
