@@ -71,6 +71,7 @@ interface Props {
   cityAvg90d?: number | null
   cityAvgAlltime?: number | null
   nearbyPlaces?: NearbyPlace[]
+  disputedCount?: number
 }
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
@@ -156,7 +157,7 @@ function ScoreCard({ label, score, reviewCount, highlight }: {
 
 // ─── Main Component ───────────────────────────────────────────────────────────
 
-export default function PlaceDetail({ place, ratings, reviews, cityAvg90d, cityAvgAlltime, nearbyPlaces = [] }: Props) {
+export default function PlaceDetail({ place, ratings, reviews, cityAvg90d, cityAvgAlltime, nearbyPlaces = [], disputedCount = 0 }: Props) {
   const alltime = ratings?.google_rating_alltime ?? place.google_rating
   const score90d = ratings?.google_rating_90d
   const score365d = ratings?.google_rating_365d
@@ -558,6 +559,17 @@ export default function PlaceDetail({ place, ratings, reviews, cityAvg90d, cityA
           )}
         </div>
       </div>
+
+      {/* ── DISPUTED REVIEWS TRANSPARENCY NOTE ─────────────────────────── */}
+      {disputedCount > 0 && (
+        <div style={{ background: '#fffbeb', border: '1px solid #fde68a', borderRadius: 12, padding: '12px 16px', display: 'flex', alignItems: 'flex-start', gap: 10 }}>
+          <span style={{ fontSize: 16, flexShrink: 0 }}>⚠️</span>
+          <p style={{ fontSize: 13, color: '#92400e', margin: 0, lineHeight: 1.6 }}>
+            <strong>{disputedCount} review{disputedCount !== 1 ? 's have' : ' has'} been disputed</strong> by this business as potentially fraudulent and {disputedCount !== 1 ? 'are' : 'is'} not shown above.
+            RecentRatings does not independently verify dispute claims — this determination was made solely by the business.
+          </p>
+        </div>
+      )}
 
       {/* ── ABOUT RECENTRATINGS ───────────────────────────────────────────── */}
       <div style={{ background: '#eff6ff', borderRadius: 18, border: '1px solid #bfdbfe', padding: 24 }}>

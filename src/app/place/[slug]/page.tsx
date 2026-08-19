@@ -219,12 +219,23 @@ export default async function PlacePage({ params }: Props) {
     .eq('restaurant_slug', slug)
     .maybeSingle()
 
-  const { data: reviews } = await supabaseAdmin
+  // Fetch non-disputed reviews only for public page
+  const reviewQuery = supabaseAdmin
     .from('reviews_cache')
     .select('id,author_name,rating,text,time_published,source')
     .eq('google_place_id', place.google_place_id)
+    .or('disputed.is.null,disputed.eq.false')
     .order('time_published', { ascending: false })
     .limit(50)
+
+  // Count disputed reviews for transparency note
+  const disputedQuery = supabaseAdmin
+    .from('reviews_cache')
+    .select('id', { count: 'exact', head: true })
+    .eq('google_place_id', place.google_place_id)
+    .eq('disputed', true)
+
+  const [{ data: reviews }, { count: disputedCount }] = await Promise.all([reviewQuery, disputedQuery])
 
   // Parse hours if stored as JSON string
   if (place.hours && typeof place.hours === 'string') {
@@ -342,6 +353,7 @@ export default async function PlacePage({ params }: Props) {
         cityAvg90d={cityAvg90d}
         cityAvgAlltime={cityAvgAlltime}
         nearbyPlaces={nearbyPlaces}
+        disputedCount={disputedCount || 0}
       />
     </>
   )

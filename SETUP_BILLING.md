@@ -4,6 +4,25 @@
 
 Go to: https://supabase.com/dashboard/project/zqmepfdghljknyojfsmq/sql
 
+### Dispute columns on reviews_cache (add first — needed for flag/hide feature)
+
+```sql
+ALTER TABLE reviews_cache ADD COLUMN IF NOT EXISTS disputed boolean DEFAULT false;
+ALTER TABLE reviews_cache ADD COLUMN IF NOT EXISTS disputed_at timestamptz;
+ALTER TABLE reviews_cache ADD COLUMN IF NOT EXISTS disputed_by text;
+ALTER TABLE reviews_cache ADD COLUMN IF NOT EXISTS dispute_reason text;
+
+CREATE INDEX IF NOT EXISTS reviews_cache_disputed_idx ON reviews_cache(disputed);
+```
+
+### Business tables (for subscription + dashboard)
+
+---
+
+## 1. Supabase — Run this SQL in the SQL Editor (ORIGINAL)
+
+Go to: https://supabase.com/dashboard/project/zqmepfdghljknyojfsmq/sql
+
 ```sql
 -- Businesses table (one row per signed-up business)
 CREATE TABLE IF NOT EXISTS businesses (
