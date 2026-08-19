@@ -47,9 +47,9 @@ export async function GET(req: NextRequest) {
         ? ratingData.reduce((s: number, r: { rating: number }) => s + r.rating, 0) / ratingData.length
         : 0
 
-      stats = { reviewCount: reviewCount || 0, avgRating, pageSlug: restaurant.slug }
+      stats = { reviewCount: reviewCount || 0, avgRating, pageSlug: restaurant.slug, googlePlaceId: restaurant.google_place_id }
     } else {
-      stats = { reviewCount: 0, avgRating: 0, pageSlug: restaurant.slug }
+      stats = { reviewCount: 0, avgRating: 0, pageSlug: restaurant.slug, googlePlaceId: null }
     }
   }
 

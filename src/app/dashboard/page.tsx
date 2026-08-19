@@ -407,7 +407,7 @@ function DashboardContent() {
                         recentratings.com/place/{stats.pageSlug} →
                       </a>
                     </div>
-                    <a href={`https://search.google.com/local/writereview?placeid=${encodeURIComponent('')}`}
+                    <a href={stats?.googlePlaceId ? `https://search.google.com/local/writereview?placeid=${stats.googlePlaceId}` : '#'}
                       style={{ fontSize: 13, fontWeight: 700, color: '#1d4ed8', textDecoration: 'none' }}>
                       Share Google review link →
                     </a>
