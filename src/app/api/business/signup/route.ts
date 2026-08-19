@@ -73,6 +73,29 @@ export async function POST(req: NextRequest) {
         })
     }
 
+    // Submit to IndexNow immediately on signup
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://recentratings.com'
+    const linkedSlug = domain // best guess; enriched later
+    // Find their restaurant slug to submit the right URL
+    const { data: restaurant } = await supabaseAdmin
+      .from('restaurants')
+      .select('slug')
+      .ilike('website', `%${domain}%`)
+      .maybeSingle()
+    if (restaurant?.slug) {
+      const pageUrl = `${baseUrl}/place/${restaurant.slug}`
+      fetch('https://api.indexnow.org/indexnow', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          host: 'recentratings.com',
+          key: 'b4f7e2a1c3d5e6f7a8b9c0d1e2f3a4b5',
+          keyLocation: `${baseUrl}/b4f7e2a1c3d5e6f7a8b9c0d1e2f3a4b5.txt`,
+          urlList: [pageUrl],
+        }),
+      }).catch(() => {}) // fire and forget
+    }
+
     return NextResponse.json({ success: true, businessId: business.id, plan: business.plan })
 
   } catch (err: unknown) {
