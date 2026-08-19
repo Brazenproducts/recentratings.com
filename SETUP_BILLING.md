@@ -28,9 +28,10 @@ Go to: https://supabase.com/dashboard/project/zqmepfdghljknyojfsmq/sql
 CREATE TABLE IF NOT EXISTS businesses (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   name text NOT NULL,
-  domain text,
-  email text NOT NULL UNIQUE,
-  plan text NOT NULL DEFAULT 'free',  -- 'free' | 'growth' | 'pro'
+  domain text NOT NULL,                -- business website domain (e.g. bartact.com)
+  email text NOT NULL UNIQUE,          -- must match domain (e.g. @bartact.com)
+  plan text NOT NULL DEFAULT 'free',   -- 'free' | 'growth' | 'pro'
+  verified boolean NOT NULL DEFAULT false, -- true once email/domain verified
   stripe_customer_id text,
   stripe_subscription_id text,
   created_at timestamptz DEFAULT now()

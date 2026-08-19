@@ -269,6 +269,10 @@ export default function ForBusinessesPage() {
               <label style={{ display: 'block', fontSize: 13, fontWeight: 700, color: '#374151', marginBottom: 6 }}>Business Email *</label>
               <input required type="email" value={form.email} onChange={e => setForm(f => ({ ...f, email: e.target.value }))}
                 placeholder="you@yourbusiness.com" style={{ width: '100%', padding: '10px 14px', borderRadius: 10, border: '1.5px solid #d1d5db', fontSize: 15, outline: 'none', boxSizing: 'border-box' }} />
+              <p style={{ fontSize: 12, color: '#6b7280', marginTop: 5, marginBottom: 0 }}>
+                Must match your business domain — e.g. <strong>you@bartact.com</strong> to claim bartact.com.
+                This is how we verify you represent this business.
+              </p>
             </div>
 
             <div>
