@@ -174,19 +174,45 @@ export async function GET(req: NextRequest) {
       return nameMatch && cityMatch && stateMatch
     })
 
-    // Enrich certified matches with recent_ratings (has our real combined score, not just Google's)
+    // Enrich certified matches with accurate combined avg from reviews_cache
+    // (recent_ratings column only stores 1 decimal — 4.97 rounds to 5.0, so we compute live)
     if (certMatches.length > 0) {
       const certSlugList = certMatches.map((r: Record<string, unknown>) => r.slug as string)
+
+      // Also get google_place_ids for the rating computation
+      const { data: certRests } = await supabaseAdmin
+        .from('restaurants')
+        .select('slug,google_place_id')
+        .in('slug', certSlugList)
+      const placeIdMap: Record<string, string> = {}
+      if (certRests) for (const r of certRests) if (r.google_place_id) placeIdMap[r.slug] = r.google_place_id
+
+      // Fetch combined avg from reviews_cache for each certified business
+      await Promise.all(certMatches.map(async (r: Record<string, unknown>, i: number) => {
+        const placeId = placeIdMap[r.slug as string]
+        if (!placeId) return
+        const { data: reviewRows } = await supabaseAdmin
+          .from('reviews_cache')
+          .select('rating')
+          .eq('google_place_id', placeId)
+          .not('rating', 'is', null)
+        if (reviewRows && reviewRows.length > 0) {
+          const avg = reviewRows.reduce((s: number, rv: {rating: number}) => s + rv.rating, 0) / reviewRows.length
+          certMatches[i] = { ...certMatches[i], google_rating_alltime: parseFloat(avg.toFixed(2)), google_review_count: reviewRows.length }
+        }
+      }))
+
+      // Also enrich with recent_ratings time-bucketed scores
       const { data: certRatings } = await supabaseAdmin
         .from('recent_ratings')
-        .select('restaurant_slug,google_rating_alltime,google_rating_90d,google_rating_365d,google_review_count,google_review_count_90d,google_review_count_365d')
+        .select('restaurant_slug,google_rating_90d,google_rating_365d,google_review_count_90d,google_review_count_365d')
         .in('restaurant_slug', certSlugList)
       if (certRatings) {
         const rMap: Record<string, Record<string, unknown>> = {}
         for (const r of certRatings) rMap[r.restaurant_slug] = r
         certMatches.forEach((r: Record<string, unknown>, i: number) => {
           const rr = rMap[r.slug as string]
-          if (rr) Object.assign(certMatches[i], rr)
+          if (rr) certMatches[i] = { ...certMatches[i], ...rr }
         })
       }
     }
