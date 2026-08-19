@@ -193,28 +193,57 @@ function DashboardContent() {
   const [plan, setPlan] = useState('free')
   const [tab, setTab] = useState<'overview' | 'reviews'>('overview')
   const [loading, setLoading] = useState(false)
+  const [sent, setSent] = useState(false)
   const [error, setError] = useState('')
   const [flagTarget, setFlagTarget] = useState<Review | null>(null)
 
-  async function lookup(e: React.FormEvent) {
-    e.preventDefault()
+  // On mount, check if we already have a verified session
+  useEffect(() => {
+    const savedEmail = localStorage.getItem('rr_business_email')
+    if (savedEmail) {
+      setLookupEmail(savedEmail)
+      loadDashboard(savedEmail)
+    }
+  }, [])
+
+  async function loadDashboard(email: string) {
     setLoading(true)
     setError('')
     try {
       const [dashRes, reviewsRes] = await Promise.all([
-        fetch(`/api/business/dashboard?email=${encodeURIComponent(lookupEmail)}`),
-        fetch(`/api/business/reviews?email=${encodeURIComponent(lookupEmail)}`),
+        fetch(`/api/business/dashboard?email=${encodeURIComponent(email)}`),
+        fetch(`/api/business/reviews?email=${encodeURIComponent(email)}`),
       ])
       const dashData = await dashRes.json()
       if (!dashRes.ok) throw new Error(dashData.error || 'Not found')
       const reviewsData = reviewsRes.ok ? await reviewsRes.json() : { reviews: [], disputedCount: 0, plan: 'free' }
-
       setBusiness(dashData.business)
       setSources(dashData.sources || [])
       setStats(dashData.stats || null)
       setReviews(reviewsData.reviews || [])
       setDisputedCount(reviewsData.disputedCount || 0)
       setPlan(reviewsData.plan || dashData.business.plan)
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Something went wrong')
+      localStorage.removeItem('rr_business_email')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  async function lookup(e: React.FormEvent) {
+    e.preventDefault()
+    setLoading(true)
+    setError('')
+    try {
+      const res = await fetch('/api/business/auth/magic-link', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: lookupEmail }),
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error || 'Something went wrong')
+      setSent(true)
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Something went wrong')
     } finally {
@@ -270,22 +299,39 @@ function DashboardContent() {
         {!business ? (
           // ── EMAIL LOOKUP ──
           <div style={{ background: '#fff', borderRadius: 20, border: '1px solid #e5e7eb', padding: 40, boxShadow: '0 1px 6px rgba(0,0,0,0.06)' }}>
-            <h1 style={{ fontSize: 24, fontWeight: 900, color: '#111827', margin: '0 0 8px' }}>Business Dashboard</h1>
-            <p style={{ fontSize: 14, color: '#6b7280', margin: '0 0 28px' }}>Enter your business email to access your account.</p>
-            <form onSubmit={lookup} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-              <input type="email" required placeholder="your@business.com"
-                value={lookupEmail} onChange={e => setLookupEmail(e.target.value)}
-                style={{ padding: '12px 16px', borderRadius: 12, border: '1.5px solid #d1d5db', fontSize: 15, outline: 'none' }} />
-              {error && <div style={{ color: '#dc2626', fontSize: 14 }}>{error}</div>}
-              <button type="submit" disabled={loading}
-                style={{ background: '#1d4ed8', color: '#fff', fontWeight: 800, padding: 12, borderRadius: 12, border: 'none', fontSize: 15, cursor: 'pointer' }}>
-                {loading ? 'Looking up...' : 'Access Dashboard →'}
-              </button>
-            </form>
-            <p style={{ fontSize: 13, color: '#9ca3af', textAlign: 'center', marginTop: 20 }}>
-              Don&apos;t have an account?{' '}
-              <a href="/for-businesses" style={{ color: '#1d4ed8', fontWeight: 700 }}>Get started free →</a>
-            </p>
+            {sent ? (
+              <>
+                <div style={{ fontSize: 40, textAlign: 'center', marginBottom: 16 }}>📬</div>
+                <h1 style={{ fontSize: 22, fontWeight: 900, color: '#111827', margin: '0 0 8px', textAlign: 'center' }}>Check your email</h1>
+                <p style={{ fontSize: 14, color: '#6b7280', textAlign: 'center', margin: '0 0 20px', lineHeight: 1.7 }}>
+                  We sent a login link to <strong>{lookupEmail}</strong>.<br />
+                  Click it to access your dashboard. Link expires in 1 hour.
+                </p>
+                <button onClick={() => { setSent(false); setError('') }}
+                  style={{ width: '100%', padding: '10px', borderRadius: 10, border: '1px solid #e5e7eb', background: '#fff', cursor: 'pointer', fontSize: 14, color: '#6b7280' }}>
+                  Use a different email
+                </button>
+              </>
+            ) : (
+              <>
+                <h1 style={{ fontSize: 24, fontWeight: 900, color: '#111827', margin: '0 0 8px' }}>Business Dashboard</h1>
+                <p style={{ fontSize: 14, color: '#6b7280', margin: '0 0 28px' }}>Enter your business email and we&apos;ll send you a secure login link.</p>
+                <form onSubmit={lookup} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+                  <input type="email" required placeholder="you@yourbusiness.com"
+                    value={lookupEmail} onChange={e => setLookupEmail(e.target.value)}
+                    style={{ padding: '12px 16px', borderRadius: 12, border: '1.5px solid #d1d5db', fontSize: 15, outline: 'none' }} />
+                  {error && <div style={{ background: '#fee2e2', color: '#dc2626', padding: '10px 14px', borderRadius: 10, fontSize: 14 }}>{error}</div>}
+                  <button type="submit" disabled={loading}
+                    style={{ background: '#1d4ed8', color: '#fff', fontWeight: 800, padding: 12, borderRadius: 12, border: 'none', fontSize: 15, cursor: 'pointer' }}>
+                    {loading ? 'Sending...' : 'Send Login Link →'}
+                  </button>
+                </form>
+                <p style={{ fontSize: 13, color: '#9ca3af', textAlign: 'center', marginTop: 20 }}>
+                  Don&apos;t have an account?{' '}
+                  <a href="/for-businesses" style={{ color: '#1d4ed8', fontWeight: 700 }}>Get started free →</a>
+                </p>
+              </>
+            )}
           </div>
 
         ) : (
@@ -473,7 +519,7 @@ function DashboardContent() {
               </div>
             )}
 
-            <button onClick={() => { setBusiness(null); setReviews([]); setSources([]); setStats(null) }}
+            <button onClick={() => { setBusiness(null); setReviews([]); setSources([]); setStats(null); setSent(false); localStorage.removeItem('rr_business_email') }}
               style={{ background: 'none', border: 'none', color: '#9ca3af', fontSize: 13, cursor: 'pointer', textAlign: 'center' }}>
               ← Switch account
             </button>
