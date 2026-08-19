@@ -253,25 +253,30 @@ export default async function PlacePage({ params }: Props) {
     disputedCount = 0
   }
 
-  // Yotpo aggregate stats (all reviews, not just first 50)
-  let yotpoAll: { rating: number; time_published: string }[] = []
+  // Fetch all reviews for this place — Yotpo (time buckets) + all sources (combined All Time)
+  let allReviews: { rating: number; time_published: string; source: string }[] = []
   if (place.google_place_id) {
     const { data } = await supabaseAdmin
       .from('reviews_cache')
-      .select('rating,time_published')
+      .select('rating,time_published,source')
       .eq('google_place_id', place.google_place_id)
-      .eq('source', 'yotpo')
-    yotpoAll = (data || []) as { rating: number; time_published: string }[]
+      .not('rating', 'is', null)
+    allReviews = (data || []) as { rating: number; time_published: string; source: string }[]
   }
 
-  // Compute Yotpo time-bucket stats
+  const yotpoAll = allReviews.filter(r => r.source === 'yotpo')
   const now = Date.now()
+
   const yotpoStats = yotpoAll.length > 0 ? {
+    // Verified-buyer time buckets (Yotpo only)
     total: yotpoAll.length,
-    avg: parseFloat((yotpoAll.reduce((s: number, r: {rating: number}) => s + (r.rating || 0), 0) / yotpoAll.length).toFixed(2)),
-    d30:  yotpoAll.filter((r: {time_published: string}) => r.time_published && (now - new Date(r.time_published).getTime()) < 30  * 86400000).length,
-    d180: yotpoAll.filter((r: {time_published: string}) => r.time_published && (now - new Date(r.time_published).getTime()) < 180 * 86400000).length,
-    d365: yotpoAll.filter((r: {time_published: string}) => r.time_published && (now - new Date(r.time_published).getTime()) < 365 * 86400000).length,
+    avg: parseFloat((yotpoAll.reduce((s, r) => s + (r.rating || 0), 0) / yotpoAll.length).toFixed(2)),
+    d30:  yotpoAll.filter(r => r.time_published && (now - new Date(r.time_published).getTime()) < 30  * 86400000).length,
+    d180: yotpoAll.filter(r => r.time_published && (now - new Date(r.time_published).getTime()) < 180 * 86400000).length,
+    d365: yotpoAll.filter(r => r.time_published && (now - new Date(r.time_published).getTime()) < 365 * 86400000).length,
+    // Combined All Time across ALL sources (Yotpo + Google + Yelp etc.)
+    combinedTotal: allReviews.length,
+    combinedAvg: parseFloat((allReviews.reduce((s, r) => s + (r.rating || 0), 0) / allReviews.length).toFixed(2)),
   } : null
 
   // Parse hours if stored as JSON string

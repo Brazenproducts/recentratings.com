@@ -70,6 +70,8 @@ interface YotpoStats {
   d30: number
   d180: number
   d365: number
+  combinedTotal: number
+  combinedAvg: number
 }
 
 interface Props {
@@ -237,8 +239,8 @@ export default function PlaceDetail({ place, ratings, reviews, cityAvg90d, cityA
             <div style={{ textAlign: 'right', flexShrink: 0 }}>
               {yotpoStats && yotpoStats.total > 0 ? (
                 <div>
-                  <div style={{ fontSize: 38, fontWeight: 900, color: '#166534', lineHeight: 1 }}>★ {yotpoStats.avg.toFixed(2)}</div>
-                  <div style={{ fontSize: 12, color: '#166534', fontWeight: 800, marginTop: 4 }}>{yotpoStats.total.toLocaleString()} verified buyer reviews</div>
+                  <div style={{ fontSize: 38, fontWeight: 900, color: '#166534', lineHeight: 1 }}>★ {yotpoStats.combinedAvg.toFixed(2)}</div>
+                  <div style={{ fontSize: 12, color: '#166534', fontWeight: 800, marginTop: 4 }}>{yotpoStats.combinedTotal.toLocaleString()} total reviews</div>
                   {alltime && <div style={{ fontSize: 11, color: '#9ca3af', marginTop: 6 }}>Google: ★{alltime.toFixed(1)} (unverified)</div>}
                 </div>
               ) : alltime ? (
@@ -286,10 +288,10 @@ export default function PlaceDetail({ place, ratings, reviews, cityAvg90d, cityA
               {yotpoStats.d30 > 0 && <ScoreCard label="Last 30 Days" score={yotpoStats.avg} reviewCount={yotpoStats.d30} highlight />}
               {yotpoStats.d180 > 0 && <ScoreCard label="Last 6 Months" score={yotpoStats.avg} reviewCount={yotpoStats.d180} highlight={yotpoStats.d30 === 0} />}
               {yotpoStats.d365 > 0 && <ScoreCard label="Last Year" score={yotpoStats.avg} reviewCount={yotpoStats.d365} highlight={yotpoStats.d30 === 0 && yotpoStats.d180 === 0} />}
-              <ScoreCard label="All Time" score={yotpoStats.avg} reviewCount={yotpoStats.total} highlight={yotpoStats.d30 === 0 && yotpoStats.d180 === 0 && yotpoStats.d365 === 0} />
+              <ScoreCard label="All Time" score={yotpoStats.combinedAvg} reviewCount={yotpoStats.combinedTotal} highlight={yotpoStats.d30 === 0 && yotpoStats.d180 === 0 && yotpoStats.d365 === 0} />
             </div>
             <div style={{ background: '#f0fdf4', borderRadius: 12, padding: '12px 16px', fontSize: 13, color: '#166534', fontWeight: 600, marginBottom: 12 }}>
-              ✓ {yotpoStats.total.toLocaleString()} verified buyer reviews · ★{yotpoStats.avg.toFixed(2)} average
+              ✓ {yotpoStats.combinedTotal.toLocaleString()} total reviews · ★{yotpoStats.combinedAvg.toFixed(2)} RecentRatings score · {yotpoStats.total.toLocaleString()} verified buyers
             </div>
             {/* Google shown as secondary comparison only */}
             {alltime && (
