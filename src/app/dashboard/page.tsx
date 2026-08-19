@@ -434,6 +434,25 @@ function DashboardContent() {
                   ))}
                 </div>
 
+                {/* Embed widget */}
+                {stats?.pageSlug && business.plan !== 'free' && (
+                  <div style={{ background: '#fff', borderRadius: 16, border: '1px solid #e5e7eb', padding: 24, boxShadow: '0 1px 4px rgba(0,0,0,0.04)' }}>
+                    <h2 style={{ fontSize: 15, fontWeight: 800, color: '#111827', margin: '0 0 4px' }}>Embed on your website</h2>
+                    <p style={{ fontSize: 13, color: '#6b7280', margin: '0 0 14px' }}>One line of code. Shows your verified score everywhere you sell.</p>
+                    <div style={{ marginBottom: 14 }}>
+                      <iframe src={`https://recentratings.com/api/widget/${stats.pageSlug}?compact=1`} style={{ border: 'none', height: 44, width: '100%' }} title="RecentRatings badge preview" />
+                    </div>
+                    <div style={{ background: '#f8fafc', borderRadius: 10, padding: '10px 14px', fontFamily: 'monospace', fontSize: 11, color: '#374151', wordBreak: 'break-all', marginBottom: 8 }}>
+                      {`<iframe src="https://recentratings.com/api/widget/${stats.pageSlug}" style="border:none;height:120px;width:280px" title="Reviews"></iframe>`}
+                    </div>
+                    <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+                      <a href={`https://recentratings.com/api/widget/${stats.pageSlug}`} target="_blank" style={{ fontSize: 12, color: '#1d4ed8', fontWeight: 600 }}>Full widget →</a>
+                      <a href={`https://recentratings.com/api/widget/${stats.pageSlug}?compact=1`} target="_blank" style={{ fontSize: 12, color: '#1d4ed8', fontWeight: 600 }}>Compact badge →</a>
+                      <a href={`https://recentratings.com/api/widget/${stats.pageSlug}?theme=dark`} target="_blank" style={{ fontSize: 12, color: '#1d4ed8', fontWeight: 600 }}>Dark mode →</a>
+                    </div>
+                  </div>
+                )}
+
                 {/* Upgrade CTA */}
                 {business.plan === 'free' && (
                   <div style={{ background: 'linear-gradient(135deg, #1e3a8a 0%, #1d4ed8 100%)', borderRadius: 16, padding: 24, color: '#fff', textAlign: 'center' }}>
