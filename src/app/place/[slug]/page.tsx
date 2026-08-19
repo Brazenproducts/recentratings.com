@@ -215,88 +215,88 @@ export default async function PlacePage({ params }: Props) {
     )
   }
 
-  const { data: ratings } = await supabaseAdmin
-    .from('recent_ratings')
-    .select('*')
-    .eq('restaurant_slug', slug)
-    .maybeSingle()
+  // Run ALL queries in parallel after getting the restaurant slug/place_id
+  const gid = place.google_place_id
 
-  // Fetch reviews — try with disputed filter first, fall back without it
-  // (disputed column may not exist until Supabase SQL migration is run)
-  let reviews: Record<string, unknown>[] | null = null
-  let disputedCount: number | null = 0
+  const [
+    { data: ratings },
+    reviewsResult,
+    allReviewsResult,
+    cityRatingsResult,
+    nearbyRawResult,
+  ] = await Promise.all([
+    // 1. Recent ratings (time-bucketed scores)
+    supabaseAdmin.from('recent_ratings').select('*').eq('restaurant_slug', slug).maybeSingle(),
 
-  try {
-    const { data, error } = await supabaseAdmin
-      .from('reviews_cache')
-      .select('id,author_name,rating,text,time_published,source')
-      .eq('google_place_id', place.google_place_id)
-      .or('disputed.is.null,disputed.eq.false')
-      .order('time_published', { ascending: false })
-      .limit(50)
-    if (error) throw error
-    reviews = data
+    // 2. Reviews for display (top 50, newest first)
+    gid
+      ? supabaseAdmin.from('reviews_cache')
+          .select('id,author_name,rating,text,time_published,source,disputed')
+          .eq('google_place_id', gid)
+          .order('time_published', { ascending: false })
+          .limit(50)
+      : Promise.resolve({ data: null, error: null }),
 
-    const { count } = await supabaseAdmin
-      .from('reviews_cache')
-      .select('id', { count: 'exact', head: true })
-      .eq('google_place_id', place.google_place_id)
-      .eq('disputed', true)
-    disputedCount = count || 0
-  } catch {
-    // Column doesn't exist yet — fetch without disputed filter
-    const { data } = await supabaseAdmin
-      .from('reviews_cache')
-      .select('id,author_name,rating,text,time_published,source')
-      .eq('google_place_id', place.google_place_id)
-      .order('time_published', { ascending: false })
-      .limit(50)
-    reviews = data
-    disputedCount = 0
-  }
+    // 3. All reviews for yotpo stats (rating + date + source only — lean payload)
+    gid
+      ? supabaseAdmin.from('reviews_cache')
+          .select('rating,time_published,source')
+          .eq('google_place_id', gid)
+          .not('rating', 'is', null)
+      : Promise.resolve({ data: null }),
 
-  // Fetch all reviews for this place — Yotpo (time buckets) + all sources (combined All Time)
-  let allReviews: { rating: number; time_published: string; source: string }[] = []
-  if (place.google_place_id) {
-    const { data } = await supabaseAdmin
-      .from('reviews_cache')
-      .select('rating,time_published,source')
-      .eq('google_place_id', place.google_place_id)
-      .not('rating', 'is', null)
-    allReviews = (data || []) as { rating: number; time_published: string; source: string }[]
-  }
+    // 4. City averages for comparison
+    place.city
+      ? supabaseAdmin.from('recent_ratings')
+          .select('google_rating_90d,google_rating_alltime')
+          .ilike('city', place.city)
+          .limit(500)
+      : Promise.resolve({ data: null }),
 
+    // 5. Nearby places (internal linking)
+    place.city
+      ? supabaseAdmin.from('recent_ratings')
+          .select('restaurant_slug,restaurant_name,city,state,google_rating_90d,google_rating_alltime,google_review_count')
+          .ilike('city', place.city)
+          .not('google_rating_90d', 'is', null)
+          .not('restaurant_slug', 'eq', slug)
+          .order('google_rating_90d', { ascending: false })
+          .limit(7)
+      : Promise.resolve({ data: null }),
+  ])
+
+  // Process reviews — filter disputed client-side (column may not exist yet)
+  const rawReviews = reviewsResult.data || []
+  const reviews = rawReviews.filter((r: Record<string, unknown>) => !r.disputed)
+  const disputedCount = rawReviews.filter((r: Record<string, unknown>) => r.disputed === true).length
+
+  // Compute yotpo stats from lean payload
+  const allReviews = (allReviewsResult.data || []) as { rating: number; time_published: string; source: string }[]
   const yotpoAll = allReviews.filter(r => r.source === 'yotpo')
   const now = Date.now()
 
   const yotpoStats = yotpoAll.length > 0 ? {
-    // Verified-buyer time buckets (Yotpo only)
     total: yotpoAll.length,
     avg: parseFloat((yotpoAll.reduce((s, r) => s + (r.rating || 0), 0) / yotpoAll.length).toFixed(2)),
     d30:  yotpoAll.filter(r => r.time_published && (now - new Date(r.time_published).getTime()) < 30  * 86400000).length,
     d180: yotpoAll.filter(r => r.time_published && (now - new Date(r.time_published).getTime()) < 180 * 86400000).length,
     d365: yotpoAll.filter(r => r.time_published && (now - new Date(r.time_published).getTime()) < 365 * 86400000).length,
-    // Combined All Time across ALL sources (Yotpo + Google + Yelp etc.)
     combinedTotal: allReviews.length,
     combinedAvg: parseFloat((allReviews.reduce((s, r) => s + (r.rating || 0), 0) / allReviews.length).toFixed(2)),
   } : null
 
-  // Parse hours if stored as JSON string
+  // Parse hours
   if (place.hours && typeof place.hours === 'string') {
     try { place.hours = JSON.parse(place.hours as unknown as string) } catch { place.hours = undefined }
   }
 
   const jsonLd = buildJsonLd(place, ratings)
 
-  // City average scores for comparison content
+  // City averages
   let cityAvg90d: number | null = null
   let cityAvgAlltime: number | null = null
   if (place.city) {
-    const { data: cityRatings } = await supabaseAdmin
-      .from('recent_ratings')
-      .select('google_rating_90d,google_rating_alltime')
-      .ilike('city', place.city)
-      .limit(500)
+    const cityRatings = cityRatingsResult.data
     if (cityRatings && cityRatings.length > 0) {
       const valid90d = cityRatings.filter(r => r.google_rating_90d).map(r => r.google_rating_90d as number)
       const validAll = cityRatings.filter(r => r.google_rating_alltime).map(r => r.google_rating_alltime as number)
@@ -305,37 +305,17 @@ export default async function PlacePage({ params }: Props) {
     }
   }
 
-  // Nearby places in the same city for internal linking
-  const { data: nearbyRaw } = await supabaseAdmin
-    .from('recent_ratings')
-    .select('restaurant_slug,restaurant_name,city,state,google_rating_90d,google_rating_alltime')
-    .ilike('city', place.city)
-    .neq('restaurant_slug', slug)
-    .not('google_rating_90d', 'is', null)
-    .order('google_rating_90d', { ascending: false })
-    .limit(20)
+  // Nearby places — already fetched in parallel above
+  const nearbyRaw = nearbyRawResult.data || []
 
-  // Enrich nearby with cuisine_type and google_rating from restaurants table
-  const nearbySlugs = (nearbyRaw || []).map(r => r.restaurant_slug)
-  let nearbyRestMap: Record<string, { cuisine_type?: string; google_rating?: number }> = {}
-  if (nearbySlugs.length > 0) {
-    const { data: nearbyRests } = await supabaseAdmin
-      .from('restaurants')
-      .select('slug,cuisine_type,google_rating')
-      .in('slug', nearbySlugs)
-    if (nearbyRests) {
-      for (const r of nearbyRests) nearbyRestMap[r.slug] = r
-    }
-  }
-
-  const nearbyPlaces = (nearbyRaw || []).slice(0, 6).map(r => ({
-    name: r.restaurant_name,
-    slug: r.restaurant_slug,
-    city: r.city,
-    state: r.state,
-    google_rating_90d: r.google_rating_90d,
-    google_rating: nearbyRestMap[r.restaurant_slug]?.google_rating ?? r.google_rating_alltime,
-    cuisine_type: nearbyRestMap[r.restaurant_slug]?.cuisine_type,
+  const nearbyPlaces: { name: string; slug: string; city: string; state: string; google_rating_90d?: number; google_rating?: number; cuisine_type?: string }[] = nearbyRaw.slice(0, 6).map((r: Record<string, unknown>) => ({
+    name: r.restaurant_name as string,
+    slug: r.restaurant_slug as string,
+    city: r.city as string,
+    state: r.state as string,
+    google_rating_90d: r.google_rating_90d as number | undefined,
+    google_rating: r.google_rating_alltime as number | undefined,
+    cuisine_type: undefined,
   }))
 
   // Build FAQPage schema from FAQ content
