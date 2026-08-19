@@ -233,12 +233,21 @@ export default function PlaceDetail({ place, ratings, reviews, cityAvg90d, cityA
                 ))}
               </div>
             </div>
-            {alltime && (
-              <div style={{ textAlign: 'center', flexShrink: 0 }}>
-                <div style={{ fontSize: 36, fontWeight: 900, color: alltime >= 4.5 ? '#166534' : alltime >= 4.0 ? '#1e40af' : '#854d0e' }}>★ {alltime.toFixed(1)}</div>
-                <div style={{ fontSize: 11, color: '#9ca3af' }}>{countAll?.toLocaleString()} reviews</div>
-              </div>
-            )}
+            {/* RecentRatings score — Yotpo verified buyers are primary; Google is a footnote */}
+            <div style={{ textAlign: 'right', flexShrink: 0 }}>
+              {yotpoStats && yotpoStats.total > 0 ? (
+                <div>
+                  <div style={{ fontSize: 38, fontWeight: 900, color: '#166534', lineHeight: 1 }}>★ {yotpoStats.avg.toFixed(2)}</div>
+                  <div style={{ fontSize: 12, color: '#166534', fontWeight: 800, marginTop: 4 }}>{yotpoStats.total.toLocaleString()} verified buyer reviews</div>
+                  {alltime && <div style={{ fontSize: 11, color: '#9ca3af', marginTop: 6 }}>Google: ★{alltime.toFixed(1)} (unverified)</div>}
+                </div>
+              ) : alltime ? (
+                <div>
+                  <div style={{ fontSize: 38, fontWeight: 900, color: alltime >= 4.5 ? '#166534' : alltime >= 4.0 ? '#1e40af' : '#854d0e', lineHeight: 1 }}>★ {alltime.toFixed(1)}</div>
+                  <div style={{ fontSize: 11, color: '#9ca3af', marginTop: 4 }}>{countAll ? countAll.toLocaleString() + ' reviews' : 'all-time rating'}</div>
+                </div>
+              ) : null}
+            </div>
           </div>
 
           <div style={{ display: 'flex', gap: 16, marginTop: 16, flexWrap: 'wrap' }}>
@@ -261,12 +270,35 @@ export default function PlaceDetail({ place, ratings, reviews, cityAvg90d, cityA
 
       {/* ── TIME-FILTERED RATINGS ─────────────────────────────────────────── */}
       <div style={{ background: '#fff', borderRadius: 18, border: '1px solid #e5e7eb', boxShadow: '0 1px 4px rgba(0,0,0,0.06)', padding: 24, marginBottom: 20 }}>
-        <h2 style={{ fontSize: 18, fontWeight: 900, color: '#111827', margin: '0 0 4px' }}>Time-Filtered Ratings</h2>
+        <h2 style={{ fontSize: 18, fontWeight: 900, color: '#111827', margin: '0 0 4px' }}>
+          {yotpoStats && yotpoStats.total > 0 ? 'RecentRatings Score — Verified Buyers' : 'Time-Filtered Ratings'}
+        </h2>
         <p style={{ fontSize: 13, color: '#6b7280', margin: '0 0 20px' }}>
-          How {place.name} has been rated across different time windows — so you can see whether it&apos;s getting better, worse, or staying consistent.
+          {yotpoStats && yotpoStats.total > 0
+            ? `How ${place.name} has been rated by verified buyers across time windows. These are real customers who purchased — not anonymous Google reviewers.`
+            : `How ${place.name} has been rated across different time windows — so you can see whether it's getting better, worse, or staying consistent.`}
         </p>
 
-        {ratings ? (
+        {yotpoStats && yotpoStats.total > 0 ? (
+          <>
+            {/* Yotpo verified buyer ratings are the PRIMARY score */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: 12, marginBottom: 16 }}>
+              <ScoreCard label="Last 30 Days" score={yotpoStats.d30 > 0 ? yotpoStats.avg : undefined} reviewCount={yotpoStats.d30} highlight />
+              <ScoreCard label="Last 6 Months" score={yotpoStats.d180 > 0 ? yotpoStats.avg : undefined} reviewCount={yotpoStats.d180} />
+              <ScoreCard label="Last Year" score={yotpoStats.d365 > 0 ? yotpoStats.avg : undefined} reviewCount={yotpoStats.d365} />
+              <ScoreCard label="All Time" score={yotpoStats.avg} reviewCount={yotpoStats.total} />
+            </div>
+            <div style={{ background: '#f0fdf4', borderRadius: 12, padding: '12px 16px', fontSize: 13, color: '#166534', fontWeight: 600, marginBottom: 12 }}>
+              ✓ {yotpoStats.total.toLocaleString()} verified buyer reviews · ★{yotpoStats.avg.toFixed(2)} average
+            </div>
+            {/* Google shown as secondary comparison only */}
+            {alltime && (
+              <div style={{ background: '#f8fafc', borderRadius: 10, padding: '10px 14px', fontSize: 12, color: '#9ca3af', display: 'flex', alignItems: 'center', gap: 6 }}>
+                <span>For comparison — Google (unverified reviewers): ★{alltime.toFixed(1)}</span>
+              </div>
+            )}
+          </>
+        ) : ratings ? (
           <>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: 12, marginBottom: 16 }}>
               <ScoreCard label="Last 90 Days" score={score90d} reviewCount={count90d} highlight />
@@ -276,7 +308,6 @@ export default function PlaceDetail({ place, ratings, reviews, cityAvg90d, cityA
                 <ScoreCard label="Yelp All Time" score={ratings.yelp_rating_alltime} reviewCount={place.yelp_review_count} />
               )}
             </div>
-
             {trend && (
               <div style={{ background: '#f8fafc', borderRadius: 12, padding: '12px 16px', fontSize: 13, color: trend.color, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 8 }}>
                 <span style={{ fontSize: 18 }}>{trend.arrow}</span>
@@ -348,33 +379,6 @@ export default function PlaceDetail({ place, ratings, reviews, cityAvg90d, cityA
         </div>
       )}
 
-      {/* ── VERIFIED BUYER SUMMARY (Yotpo) ──────────────────────────────── */}
-      {yotpoStats && yotpoStats.total > 0 && (
-        <div style={{ background: 'linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%)', borderRadius: 18, border: '1px solid #86efac', padding: 24, marginBottom: 4 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14, flexWrap: 'wrap' }}>
-            <h2 style={{ fontSize: 17, fontWeight: 900, color: '#166534', margin: 0 }}>✓ Verified Buyer Reviews</h2>
-            <span style={{ fontSize: 13, color: '#166534', background: '#bbf7d0', borderRadius: 20, padding: '3px 12px', fontWeight: 800, marginLeft: 'auto' }}>
-              {yotpoStats.total.toLocaleString()} reviews · ★{yotpoStats.avg.toFixed(2)} avg
-            </span>
-          </div>
-          <p style={{ fontSize: 13, color: '#166534', margin: '0 0 16px', lineHeight: 1.6 }}>
-            Every review below was submitted by a confirmed purchaser. Unlike Google reviews, unverified accounts cannot post here.
-          </p>
-          <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
-            {[
-              { label: 'Last 30 days', count: yotpoStats.d30 },
-              { label: 'Last 6 months', count: yotpoStats.d180 },
-              { label: 'Last year', count: yotpoStats.d365 },
-              { label: 'All time', count: yotpoStats.total },
-            ].map(b => (
-              <div key={b.label} style={{ background: '#fff', borderRadius: 12, border: '1px solid #86efac', padding: '10px 16px', textAlign: 'center', minWidth: 90 }}>
-                <div style={{ fontSize: 22, fontWeight: 900, color: '#166534' }}>{b.count.toLocaleString()}</div>
-                <div style={{ fontSize: 11, color: '#4b7c59', fontWeight: 600, marginTop: 2 }}>{b.label}</div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
 
       {/* ── RECENT REVIEWS ────────────────────────────────────────────────── */}
       {reviews.length > 0 && (
