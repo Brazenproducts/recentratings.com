@@ -78,7 +78,7 @@ function FlagModal({ review, email, plan, disputedCount, onClose, onSuccess }: {
   const [error, setError] = useState('')
 
   const FREE_LIMIT = 3
-  const atLimit = plan === 'free' && disputedCount >= FREE_LIMIT
+  const atLimit = plan === 'free' // Free plan has no fraud dispute access at all
 
   async function submit() {
     if (!confirmed) return

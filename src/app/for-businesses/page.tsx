@@ -33,7 +33,7 @@ const PLANS = [
       'Claim your RecentRatings page',
       'Google & Yelp aggregate ratings shown',
       'Google review funnel button',
-      '3 fraud dispute flags',
+      'Fraud dispute — upgrade to flag fake reviews',
       'Up to 25 verified reviews displayed',
     ],
     cta: 'Claim Free Page',

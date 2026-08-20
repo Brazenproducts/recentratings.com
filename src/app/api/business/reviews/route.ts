@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase'
 
 // Free tier: max 3 disputed reviews
-const FREE_DISPUTE_LIMIT = 3
+const FREE_DISPUTE_LIMIT = 0 // Free plan gets no fraud disputes — paid feature only
 
 // GET — list all reviews for a business (by email)
 export async function GET(req: NextRequest) {
