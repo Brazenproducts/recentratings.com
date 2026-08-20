@@ -20,7 +20,7 @@ function parseCitySlug(slug: string): { cityName: string; state: string; display
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { city } = await params
   const { displayCity, displayState } = parseCitySlug(city)
-  const title = `Best Restaurants in ${displayCity}, ${displayState} — Ranked by Recent Reviews | RecentRatings`
+  const title = `Best ${displayCity}, ${displayState} Reviews & Ratings — Ranked by RecentRatings`
   const desc = `See the top-rated restaurants in ${displayCity}, ${displayState} ranked by recent Google reviews. Scores updated weekly — see what's actually good right now, not years ago.`
   return {
     title: title.substring(0, 65),
