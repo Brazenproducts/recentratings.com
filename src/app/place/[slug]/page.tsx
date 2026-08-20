@@ -275,14 +275,21 @@ export default async function PlacePage({ params }: Props) {
   const yotpoAll = allReviews.filter(r => r.source === 'yotpo')
   const now = Date.now()
 
+  // Helper: avg + count for a time bucket
+  const bucket = (ms: number) => {
+    const r = yotpoAll.filter(r => r.time_published && (now - new Date(r.time_published).getTime()) < ms)
+    return { count: r.length, avg: r.length ? parseFloat((r.reduce((s,x) => s + (x.rating||0), 0) / r.length).toFixed(2)) : 0 }
+  }
+  const b30 = bucket(30*86400000), b180 = bucket(180*86400000), b365 = bucket(365*86400000)
+
   const yotpoStats = yotpoAll.length > 0 ? {
     total: yotpoAll.length,
-    avg: parseFloat((yotpoAll.reduce((s, r) => s + (r.rating || 0), 0) / yotpoAll.length).toFixed(2)),
-    d30:  yotpoAll.filter(r => r.time_published && (now - new Date(r.time_published).getTime()) < 30  * 86400000).length,
-    d180: yotpoAll.filter(r => r.time_published && (now - new Date(r.time_published).getTime()) < 180 * 86400000).length,
-    d365: yotpoAll.filter(r => r.time_published && (now - new Date(r.time_published).getTime()) < 365 * 86400000).length,
+    avg: parseFloat((yotpoAll.reduce((s,r) => s + (r.rating||0), 0) / yotpoAll.length).toFixed(2)),
+    d30: b30.count,   d30avg: b30.avg,
+    d180: b180.count, d180avg: b180.avg,
+    d365: b365.count, d365avg: b365.avg,
     combinedTotal: allReviews.length,
-    combinedAvg: parseFloat((allReviews.reduce((s, r) => s + (r.rating || 0), 0) / allReviews.length).toFixed(2)),
+    combinedAvg: parseFloat((allReviews.reduce((s,r) => s + (r.rating||0), 0) / allReviews.length).toFixed(2)),
   } : null
 
   // Parse hours
