@@ -95,20 +95,7 @@ export async function POST(req: NextRequest) {
         }),
       }).catch(() => {})
 
-      // Google Indexing API — tells Google to crawl RIGHT NOW
-      try {
-        const { GoogleAuth } = await import('google-auth-library')
-        const auth = new GoogleAuth({
-          keyFile: '/home/ubuntu/.openclaw/workspace/.gcp-service-account.json',
-          scopes: ['https://www.googleapis.com/auth/indexing'],
-        })
-        const client = await auth.getClient()
-        await client.request({
-          url: 'https://indexing.googleapis.com/v3/urlNotifications:publish',
-          method: 'POST',
-          data: { url: pageUrl, type: 'URL_UPDATED' },
-        })
-      } catch { /* quota may be exhausted — IndexNow covers Bing/Yandex anyway */ }
+      // Google Indexing API handled by server-side daily cron (priority queue)
     }
 
     return NextResponse.json({ success: true, businessId: business.id, plan: business.plan })

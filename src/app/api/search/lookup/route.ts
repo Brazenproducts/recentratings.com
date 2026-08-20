@@ -85,12 +85,7 @@ export async function POST(req: NextRequest) {
     }),
   }).catch(() => {})
 
-  try {
-    const { GoogleAuth } = await import('google-auth-library')
-    const auth = new GoogleAuth({ keyFile: '/home/ubuntu/.openclaw/workspace/.gcp-service-account.json', scopes: ['https://www.googleapis.com/auth/indexing'] })
-    const client = await auth.getClient()
-    await (client as any).request({ url: 'https://indexing.googleapis.com/v3/urlNotifications:publish', method: 'POST', data: { url: pageUrl, type: 'URL_UPDATED' } })
-  } catch { /* quota or billing — IndexNow covers the rest */ }
+  // Google Indexing API handled by server-side priority cron
 
   return NextResponse.json({ result: created, created: true })
 }
