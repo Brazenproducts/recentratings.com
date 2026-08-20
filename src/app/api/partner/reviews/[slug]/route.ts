@@ -12,7 +12,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase'
 
-export const revalidate = 1800 // 30 min cache
+export const dynamic = 'force-dynamic'
 
 const PARTNER_KEYS: Record<string, string> = {
   [process.env.SKIPATIP_PARTNER_KEY || 'skipatip-dev']: 'skipatip',
