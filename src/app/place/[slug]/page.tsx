@@ -178,8 +178,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   }
 
   // Title: keyword-first per SEO playbook
-  const title = `${place.name} Ratings — ${place.city}, ${place.state} | RecentRatings`
-  const description = `${descScore}See time-filtered ratings for ${place.name} in ${place.city}, ${place.state} — 90-day, 1-year, and all-time scores so you know how it's rated right now.`
+  const title = `${place.name} Reviews & Ratings — ${place.city}, ${place.state} | RecentRatings`
+  const description = `${descScore}${place.name} reviews & ratings in ${place.city}, ${place.state} — verified buyer reviews, time-filtered scores (90-day, 1-year, all-time), and real customer feedback.`
 
   return {
     title,
