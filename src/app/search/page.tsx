@@ -212,7 +212,27 @@ function SearchPageInner() {
       {!loading && results.length === 0 && (q || city) && (
         <div style={{ textAlign: 'center', padding: '64px 0', color: '#9ca3af' }}>
           <div style={{ fontSize: 48, marginBottom: 12 }}>🔍</div>
-          <p>No results. Try a different name or city.</p>
+          <p style={{ marginBottom: 20 }}>No results for <strong style={{ color: '#374151' }}>{q}{city ? ` in ${city}` : ''}</strong>.</p>
+          <button
+            onClick={async () => {
+              setLoading(true)
+              const res = await fetch('/api/search/lookup', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name: q, city, state }),
+              })
+              const data = await res.json()
+              if (data.result) {
+                window.location.href = `/place/${data.result.slug}`
+              } else {
+                setLoading(false)
+                alert('Business not found. Try adding the city name.')
+              }
+            }}
+            style={{ background: '#1d4ed8', color: '#fff', fontWeight: 700, padding: '12px 24px', borderRadius: 12, border: 'none', fontSize: 15, cursor: 'pointer', marginBottom: 12 }}>
+            🔎 Search Google for &quot;{q}&quot;
+          </button>
+          <p style={{ fontSize: 13, marginTop: 8 }}>We&apos;ll create a page for them instantly if found.</p>
         </div>
       )}
 
