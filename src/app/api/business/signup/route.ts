@@ -73,10 +73,8 @@ export async function POST(req: NextRequest) {
         })
     }
 
-    // Submit to IndexNow immediately on signup
+    // Submit to IndexNow + Google Indexing API immediately on signup
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://recentratings.com'
-    const linkedSlug = domain // best guess; enriched later
-    // Find their restaurant slug to submit the right URL
     const { data: restaurant } = await supabaseAdmin
       .from('restaurants')
       .select('slug')
@@ -84,6 +82,8 @@ export async function POST(req: NextRequest) {
       .maybeSingle()
     if (restaurant?.slug) {
       const pageUrl = `${baseUrl}/place/${restaurant.slug}`
+
+      // IndexNow — Bing, Yandex, etc.
       fetch('https://api.indexnow.org/indexnow', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -93,7 +93,22 @@ export async function POST(req: NextRequest) {
           keyLocation: `${baseUrl}/b4f7e2a1c3d5e6f7a8b9c0d1e2f3a4b5.txt`,
           urlList: [pageUrl],
         }),
-      }).catch(() => {}) // fire and forget
+      }).catch(() => {})
+
+      // Google Indexing API — tells Google to crawl RIGHT NOW
+      try {
+        const { GoogleAuth } = await import('google-auth-library')
+        const auth = new GoogleAuth({
+          keyFile: '/home/ubuntu/.openclaw/workspace/.gcp-service-account.json',
+          scopes: ['https://www.googleapis.com/auth/indexing'],
+        })
+        const client = await auth.getClient()
+        await client.request({
+          url: 'https://indexing.googleapis.com/v3/urlNotifications:publish',
+          method: 'POST',
+          data: { url: pageUrl, type: 'URL_UPDATED' },
+        })
+      } catch { /* quota may be exhausted — IndexNow covers Bing/Yandex anyway */ }
     }
 
     return NextResponse.json({ success: true, businessId: business.id, plan: business.plan })

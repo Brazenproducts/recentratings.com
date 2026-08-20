@@ -70,8 +70,10 @@ export async function POST(req: NextRequest) {
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
 
-  // Submit to IndexNow immediately
+  // Submit to IndexNow + Google Indexing API immediately
   const base = process.env.NEXT_PUBLIC_BASE_URL || 'https://recentratings.com'
+  const pageUrl = `${base}/place/${newSlug}`
+
   fetch('https://api.indexnow.org/indexnow', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -79,9 +81,16 @@ export async function POST(req: NextRequest) {
       host: 'recentratings.com',
       key: 'b4f7e2a1c3d5e6f7a8b9c0d1e2f3a4b5',
       keyLocation: `${base}/b4f7e2a1c3d5e6f7a8b9c0d1e2f3a4b5.txt`,
-      urlList: [`${base}/place/${newSlug}`],
+      urlList: [pageUrl],
     }),
   }).catch(() => {})
+
+  try {
+    const { GoogleAuth } = await import('google-auth-library')
+    const auth = new GoogleAuth({ keyFile: '/home/ubuntu/.openclaw/workspace/.gcp-service-account.json', scopes: ['https://www.googleapis.com/auth/indexing'] })
+    const client = await auth.getClient()
+    await (client as any).request({ url: 'https://indexing.googleapis.com/v3/urlNotifications:publish', method: 'POST', data: { url: pageUrl, type: 'URL_UPDATED' } })
+  } catch { /* quota or billing — IndexNow covers the rest */ }
 
   return NextResponse.json({ result: created, created: true })
 }
