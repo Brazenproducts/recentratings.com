@@ -219,7 +219,7 @@ function SearchPageInner() {
               const res = await fetch('/api/search/lookup', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ name: q, city, state }),
+                body: JSON.stringify({ name: q, city }),
               })
               const data = await res.json()
               if (data.result) {
