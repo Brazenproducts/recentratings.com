@@ -32,10 +32,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           boxShadow: '0 1px 3px rgba(0,0,0,0.06)'
         }}>
           <div style={{ maxWidth: 1100, margin: '0 auto', padding: '0 20px', height: 56, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <a href="/" style={{ display: 'flex', alignItems: 'center', gap: 2, textDecoration: 'none' }}>
+            <a href="/" style={{ display: 'flex', alignItems: 'center', gap: 10, textDecoration: 'none' }}>
+              <img src="/logo-square.jpg" alt="RecentRatings" style={{ width: 36, height: 36, borderRadius: 8, display: 'block', objectFit: 'cover' }} />
               <span style={{ fontSize: 22, fontWeight: 900, color: '#2563eb', letterSpacing: '-0.5px' }}>Recent</span>
               <span style={{ fontSize: 22, fontWeight: 900, color: '#111827', letterSpacing: '-0.5px' }}>Ratings</span>
-              <span style={{ fontSize: 11, background: '#dbeafe', color: '#1d4ed8', fontWeight: 700, padding: '2px 8px', borderRadius: 20, marginLeft: 8 }}>BETA</span>
+              <span style={{ fontSize: 11, background: '#dbeafe', color: '#1d4ed8', fontWeight: 700, padding: '2px 8px', borderRadius: 20, marginLeft: 4 }}>BETA</span>
             </a>
             <nav style={{ display: 'flex', gap: 24, fontSize: 14, fontWeight: 600, color: '#4b5563' }}>
               <a href="/" style={{ color: '#4b5563', textDecoration: 'none' }}>Home</a>

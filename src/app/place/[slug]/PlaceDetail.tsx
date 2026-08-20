@@ -401,9 +401,9 @@ export default function PlaceDetail({ place, ratings, reviews, cityAvg90d, cityA
             )}
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
-            {reviews.map((review, i) => {
-              const isYotpo = review.source === 'yotpo' || review.source === 'judgeme'
-              const isGoogle = !isYotpo
+            {reviews.filter(review => ['yotpo','judgeme','stamped','okendo','csv'].includes(review.source || '')).map((review, i) => {
+              const isYotpo = true
+              const isGoogle = false
               const { body, product } = isYotpo ? parseYotpoText(review.text) : { body: review.text || '', product: null }
               return (
               <div key={review.id || i} style={{ borderBottom: i < reviews.length - 1 ? '1px solid #f3f4f6' : 'none', paddingBottom: i < reviews.length - 1 ? 20 : 0 }}>

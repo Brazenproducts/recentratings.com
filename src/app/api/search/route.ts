@@ -198,7 +198,7 @@ export async function GET(req: NextRequest) {
           .not('rating', 'is', null)
         if (reviewRows && reviewRows.length > 0) {
           const avg = reviewRows.reduce((s: number, rv: {rating: number}) => s + rv.rating, 0) / reviewRows.length
-          certMatches[i] = { ...certMatches[i], google_rating_alltime: parseFloat(avg.toFixed(2)), google_review_count: reviewRows.length }
+          Object.assign(certMatches[i] as Record<string, unknown>, { google_rating_alltime: parseFloat(avg.toFixed(2)), google_review_count: reviewRows.length })
         }
       }))
 
@@ -212,7 +212,7 @@ export async function GET(req: NextRequest) {
         for (const r of certRatings) rMap[r.restaurant_slug] = r
         certMatches.forEach((r: Record<string, unknown>, i: number) => {
           const rr = rMap[r.slug as string]
-          if (rr) certMatches[i] = { ...certMatches[i], ...rr }
+          if (rr) Object.assign(certMatches[i] as Record<string, unknown>, rr)
         })
       }
     }
