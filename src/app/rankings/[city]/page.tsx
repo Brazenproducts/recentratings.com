@@ -34,40 +34,39 @@ export default async function RankingsPage({ params }: PageProps) {
   const { city } = await params
   const { cityName, state, displayCity, displayState } = parseCitySlug(city)
 
-  // Fetch top 25 places in this city with rating data
-  const { data: places } = await supabaseAdmin
-    .from('restaurants')
-    .select('id, name, slug, address, cuisine_type, google_rating, google_review_count, is_certified')
-    .ilike('city', `%${cityName}%`)
-    .ilike('state', `%${state}%`)
-    .not('google_rating', 'is', null)
-    .not('slug', 'is', null)
-    .order('google_rating', { ascending: false })
-    .limit(50)
-
-  if (!places || places.length === 0) notFound()
-
-  // Fetch recent_ratings for these places
-  const slugs = places.map(p => p.slug).filter(Boolean)
+  // Query recent_ratings by city (46k rows, fast) then enrich from restaurants
   const { data: recentData } = await supabaseAdmin
     .from('recent_ratings')
-    .select('restaurant_slug, score_90d, count_90d, score_365d, count_365d, score_alltime, count_alltime')
-    .in('restaurant_slug', slugs)
+    .select('restaurant_slug,restaurant_name,google_rating_90d,google_review_count_90d,google_rating_365d,google_review_count_365d,google_rating_alltime,google_review_count')
+    .ilike('city', `%${cityName}%`)
+    .eq('state', state)
+    .not('google_rating_alltime', 'is', null)
+    .order('google_rating_90d', { ascending: false, nullsFirst: false })
+    .limit(50)
 
-  const recentMap = new Map(recentData?.map(r => [r.restaurant_slug, r]) || [])
+  if (!recentData || recentData.length === 0) notFound()
 
-  // Merge and sort by 90d score, then alltime
-  const enriched = places.map(p => ({
+  // Enrich with restaurant details
+  const slugs = recentData.map((r: Record<string, unknown>) => r.restaurant_slug as string)
+  const { data: restData } = await supabaseAdmin
+    .from('restaurants')
+    .select('slug,address,cuisine_type,google_rating,google_review_count,is_certified')
+    .in('slug', slugs)
+  const restMap = new Map((restData || []).map((r: Record<string, unknown>) => [r.slug, r]))
+
+  const places = recentData.map((r: Record<string, unknown>) => {
+    const rest = (restMap.get(r.restaurant_slug as string) || {}) as Record<string, unknown>
+    return { ...rest, ...r, name: r.restaurant_name, slug: r.restaurant_slug }
+  })
+
+  // Already sorted by 90d score
+  const enriched = places.slice(0, 25).map(p => ({
     ...p,
-    recent: recentMap.get(p.slug) || null,
-  })).sort((a, b) => {
-    const a90 = a.recent?.score_90d || a.google_rating || 0
-    const b90 = b.recent?.score_90d || b.google_rating || 0
-    return b90 - a90
-  }).slice(0, 25)
+    recent: { score_90d: p.google_rating_90d, count_90d: p.google_review_count_90d, score_365d: p.google_rating_365d, score_alltime: p.google_rating_alltime },
+  }))
 
   const topPlace = enriched[0]
-  const avgRating = (enriched.reduce((s, p) => s + (p.recent?.score_90d || p.google_rating || 0), 0) / enriched.length).toFixed(1)
+  const avgRating = (enriched.reduce((s, p) => s + ((p.google_rating_90d as number) || (p.google_rating as number) || 0), 0) / enriched.length).toFixed(1)
 
   const faqSchema = {
     '@context': 'https://schema.org',
