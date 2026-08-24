@@ -41,6 +41,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <nav style={{ display: 'flex', gap: 24, fontSize: 14, fontWeight: 600, color: '#4b5563' }}>
               <a href="/" style={{ color: '#4b5563', textDecoration: 'none' }}>Home</a>
               <a href="/search" style={{ color: '#4b5563', textDecoration: 'none' }}>Search</a>
+              <a href="/for-businesses" style={{ color: '#4b5563', textDecoration: 'none' }}>For Businesses</a>
             </nav>
           </div>
         </header>
@@ -48,6 +49,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <footer style={{ marginTop: 64, borderTop: '1px solid #e5e7eb', background: '#fff', padding: '32px 20px', textAlign: 'center', fontSize: 13, color: '#6b7280' }}>
           <p>© {new Date().getFullYear()} RecentRatings.com — Ratings that actually mean something.</p>
           <p style={{ marginTop: 4, fontSize: 12, color: '#9ca3af' }}>Data sourced from Google Places · Updated daily · 115,000+ places</p>
+          <p style={{ marginTop: 10, fontSize: 12, color: '#9ca3af' }}>
+            <a href="/about" style={{ color: '#9ca3af', textDecoration: 'none', marginRight: 14 }}>About</a>
+            <a href="/privacy" style={{ color: '#9ca3af', textDecoration: 'none', marginRight: 14 }}>Privacy Policy</a>
+            <a href="/terms" style={{ color: '#9ca3af', textDecoration: 'none' }}>Terms of Service</a>
+          </p>
         </footer>
       </body>
     </html>
