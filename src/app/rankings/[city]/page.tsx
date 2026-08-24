@@ -39,12 +39,13 @@ export default async function RankingsPage({ params }: PageProps) {
     .from('recent_ratings')
     .select('restaurant_slug,restaurant_name,google_rating_90d,google_review_count_90d,google_rating_365d,google_review_count_365d,google_rating_alltime,google_review_count')
     .ilike('city', `%${cityName}%`)
-    .eq('state', state)
+    .ilike('state', `%${state}%`)
     .not('google_rating_alltime', 'is', null)
     .order('google_rating_90d', { ascending: false, nullsFirst: false })
     .limit(50)
 
-  if (!recentData || recentData.length === 0) notFound()
+  // Don't 404 — show empty state if no data for this city
+  if (!recentData) notFound()
 
   // Enrich with restaurant details
   const slugs = recentData.map((r: Record<string, unknown>) => r.restaurant_slug as string)
@@ -67,6 +68,7 @@ export default async function RankingsPage({ params }: PageProps) {
     recent: { score_90d: p.google_rating_90d, count_90d: p.google_review_count_90d, score_365d: p.google_rating_365d, score_alltime: p.google_rating_alltime },
   }))
 
+  if (!enriched.length) notFound()
   const topPlace = enriched[0]
   const avgRating = (enriched.reduce((s: number, p) => s + ((p.recent?.score_90d as number) || (p.recent?.score_alltime as number) || 0), 0) / enriched.length).toFixed(1)
 
