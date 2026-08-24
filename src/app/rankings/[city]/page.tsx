@@ -60,13 +60,15 @@ export default async function RankingsPage({ params }: PageProps) {
   })
 
   // Already sorted by 90d score
-  const enriched = places.slice(0, 25).map(p => ({
+  type RankedPlace = Record<string, unknown>
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const enriched = (places as any[]).slice(0, 25).map((p: any) => ({
     ...p,
     recent: { score_90d: p.google_rating_90d, count_90d: p.google_review_count_90d, score_365d: p.google_rating_365d, score_alltime: p.google_rating_alltime },
   }))
 
   const topPlace = enriched[0]
-  const avgRating = (enriched.reduce((s, p) => s + ((p.google_rating_90d as number) || (p.google_rating as number) || 0), 0) / enriched.length).toFixed(1)
+  const avgRating = (enriched.reduce((s: number, p) => s + ((p.recent?.score_90d as number) || (p.recent?.score_alltime as number) || 0), 0) / enriched.length).toFixed(1)
 
   const faqSchema = {
     '@context': 'https://schema.org',
@@ -77,7 +79,7 @@ export default async function RankingsPage({ params }: PageProps) {
         name: `What is the best restaurant in ${displayCity}, ${displayState}?`,
         acceptedAnswer: {
           '@type': 'Answer',
-          text: `Based on recent Google reviews, ${topPlace?.name} is currently the top-rated restaurant in ${displayCity} with a ${topPlace?.recent?.score_90d?.toFixed(1) || topPlace?.google_rating} rating in the last 90 days.`,
+          text: `Based on recent Google reviews, ${(topPlace?.name as string)} is currently the top-rated restaurant in ${displayCity} with a ${(topPlace?.recent?.score_90d as number)?.toFixed(1) || (topPlace?.recent?.score_alltime as number)?.toFixed(1)} rating in the last 90 days.`,
         },
       },
       {
@@ -126,10 +128,10 @@ export default async function RankingsPage({ params }: PageProps) {
           {enriched.map((place, i) => {
             const score90d = place.recent?.score_90d
             const count90d = place.recent?.count_90d || 0
-            const scoreAlltime = place.recent?.score_alltime || place.google_rating
+            const scoreAlltime = (place.recent?.score_alltime as number) || (place.recent?.score_90d as number) || 0
             return (
               <a
-                key={place.id}
+                key={place.slug as string}
                 href={`/place/${place.slug}`}
                 style={{ display: 'block', textDecoration: 'none', color: 'inherit' }}
               >
@@ -146,8 +148,8 @@ export default async function RankingsPage({ params }: PageProps) {
                   {/* Info */}
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{ fontWeight: 700, fontSize: 16, color: '#111827', marginBottom: 2 }}>
-                      {place.name}
-                      {place.is_certified && <span style={{ marginLeft: 8, fontSize: 11, background: '#dbeafe', color: '#1d4ed8', padding: '2px 8px', borderRadius: 20, fontWeight: 600 }}>✓ Featured</span>}
+                      {(place.name as string)}
+                      {(place.is_certified as boolean) && <span style={{ marginLeft: 8, fontSize: 11, background: '#dbeafe', color: '#1d4ed8', padding: '2px 8px', borderRadius: 20, fontWeight: 600 }}>✓ Featured</span>}
                     </div>
                     <div style={{ fontSize: 13, color: '#6b7280' }}>
                       {place.cuisine_type && <span>{place.cuisine_type} · </span>}
@@ -164,7 +166,7 @@ export default async function RankingsPage({ params }: PageProps) {
                     ) : (
                       <>
                         <div style={{ fontSize: 20, fontWeight: 900, color: '#111827' }}>★{scoreAlltime?.toFixed(1)}</div>
-                        <div style={{ fontSize: 11, color: '#6b7280' }}>{place.google_review_count?.toLocaleString()} reviews · all time</div>
+                        <div style={{ fontSize: 11, color: '#6b7280' }}>{((place.recent as Record<string,unknown>)?.count_alltime as number)?.toLocaleString()} reviews · all time</div>
                       </>
                     )}
                   </div>
