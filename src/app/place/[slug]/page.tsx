@@ -1,6 +1,21 @@
 import { Metadata } from 'next'
+import { unstable_cache } from 'next/cache'
 import { supabaseAdmin } from '@/lib/supabase'
 import PlaceDetail from './PlaceDetail'
+
+// Cache the heavy review aggregation query — avoids fetching 800+ rows on every page load
+const getCachedReviewStats = unstable_cache(
+  async (googlePlaceId: string) => {
+    const { data } = await supabaseAdmin
+      .from('reviews_cache')
+      .select('rating,time_published,source')
+      .eq('google_place_id', googlePlaceId)
+      .not('rating', 'is', null)
+    return (data || []) as { rating: number; time_published: string; source: string }[]
+  },
+  ['review-stats'],
+  { revalidate: 3600 }
+)
 
 export const revalidate = 3600 // Cache at CDN edge, rebuild every hour
 
@@ -237,12 +252,9 @@ export default async function PlacePage({ params }: Props) {
           .limit(50)
       : Promise.resolve({ data: null, error: null }),
 
-    // 3. All reviews for yotpo stats (rating + date + source only — lean payload)
+    // 3. All reviews for yotpo stats — served from 1-hour server cache to avoid 800+ row fetch on every load
     gid
-      ? supabaseAdmin.from('reviews_cache')
-          .select('rating,time_published,source')
-          .eq('google_place_id', gid)
-          .not('rating', 'is', null)
+      ? getCachedReviewStats(gid).then(data => ({ data }))
       : Promise.resolve({ data: null }),
 
     // 4. City averages for comparison

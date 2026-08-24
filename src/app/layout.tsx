@@ -48,7 +48,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <main>{children}</main>
         <footer style={{ marginTop: 64, borderTop: '1px solid #e5e7eb', background: '#fff', padding: '32px 20px', textAlign: 'center', fontSize: 13, color: '#6b7280' }}>
           <p>© {new Date().getFullYear()} RecentRatings.com — Ratings that actually mean something.</p>
-          <p style={{ marginTop: 4, fontSize: 12, color: '#9ca3af' }}>Data sourced from Google Places · Updated daily · 115,000+ places</p>
+          <p style={{ marginTop: 4, fontSize: 12, color: '#9ca3af' }}>Data sourced from Google Places, Yelp, and verified platforms · Updated daily · 400,000+ places</p>
           <p style={{ marginTop: 10, fontSize: 12, color: '#9ca3af' }}>
             <a href="/about" style={{ color: '#9ca3af', textDecoration: 'none', marginRight: 14 }}>About</a>
             <a href="/privacy" style={{ color: '#9ca3af', textDecoration: 'none', marginRight: 14 }}>Privacy Policy</a>
