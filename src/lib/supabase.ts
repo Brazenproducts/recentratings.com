@@ -1,43 +1,14 @@
-import { createClient, SupabaseClient } from '@supabase/supabase-js'
+import { createClient } from '@supabase/supabase-js'
 
-// Lazy initialization — prevents build-time crashes when env vars aren't available
-// Vercel has these at runtime; local builds don't always have them
-let _supabaseAdmin: SupabaseClient | null = null
-let _supabase: SupabaseClient | null = null
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_KEY!
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || supabaseServiceKey
 
-export function getSupabaseAdmin(): SupabaseClient {
-  if (!_supabaseAdmin) {
-    const url = process.env.NEXT_PUBLIC_SUPABASE_URL
-    const key = process.env.SUPABASE_SERVICE_KEY
-    if (!url || !key) throw new Error('Supabase env vars not configured')
-    _supabaseAdmin = createClient(url, key)
-  }
-  return _supabaseAdmin
-}
+// Server-side client (API routes) — uses service key
+export const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey)
 
-export function getSupabase(): SupabaseClient {
-  if (!_supabase) {
-    const url = process.env.NEXT_PUBLIC_SUPABASE_URL
-    const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || process.env.SUPABASE_SERVICE_KEY
-    if (!url || !key) throw new Error('Supabase env vars not configured')
-    _supabase = createClient(url, key)
-  }
-  return _supabase
-}
-
-// Backward-compatible exports — these are still module-level but won't crash
-// because we use a Proxy that defers initialization until first access
-export const supabaseAdmin = new Proxy({} as SupabaseClient, {
-  get(_target, prop) {
-    return getSupabaseAdmin()[prop as keyof SupabaseClient]
-  }
-})
-
-export const supabase = new Proxy({} as SupabaseClient, {
-  get(_target, prop) {
-    return getSupabase()[prop as keyof SupabaseClient]
-  }
-})
+// Client-side safe (uses anon key or service key for now)
+export const supabase = createClient(supabaseUrl, supabaseAnonKey)
 
 export type TimeBucket = '30d' | '90d' | '180d' | '365d' | 'alltime'
 
@@ -52,7 +23,6 @@ export interface Place {
   cuisine_type?: string
   phone?: string
   website?: string
-  google_place_id?: string
   lat?: number
   lng?: number
   google_rating?: number
