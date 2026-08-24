@@ -19,6 +19,18 @@ const getCachedReviewStats = unstable_cache(
 
 export const revalidate = 3600 // Cache at CDN edge, rebuild every hour
 
+// Pre-build certified/demo business pages at deploy time — served from CDN instantly
+export async function generateStaticParams() {
+  const { data } = await supabaseAdmin
+    .from('restaurants')
+    .select('slug')
+    .or('is_certified.eq.true,is_featured.eq.true')
+    .not('slug', 'is', null)
+    .not('google_rating', 'is', null)
+    .limit(50)
+  return (data || []).map((r: { slug: string }) => ({ slug: r.slug }))
+}
+
 interface Props {
   params: Promise<{ slug: string }>
 }
