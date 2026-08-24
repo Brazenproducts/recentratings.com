@@ -144,20 +144,27 @@ export default function Home() {
         </div>
       </section>
 
-      {/* CTA */}
+      {/* Business CTA */}
+      <section style={{ background: 'linear-gradient(135deg, #1e3a8a 0%, #1d4ed8 100%)', padding: '64px 20px', textAlign: 'center' }}>
+        <div style={{ maxWidth: 700, margin: '0 auto' }}>
+          <div style={{ fontSize: 13, fontWeight: 700, color: '#93c5fd', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 16 }}>For Businesses</div>
+          <h2 style={{ fontSize: 28, fontWeight: 900, color: '#fff', marginBottom: 16, lineHeight: 1.3 }}>Your verified buyer reviews deserve to be seen.</h2>
+          <p style={{ fontSize: 15, color: '#bfdbfe', marginBottom: 12, lineHeight: 1.7 }}>
+            Fake Google reviews hurt real businesses. Your Yotpo, Judge.me, and Stamped reviews from actual customers sit hidden on your own site. We change that.
+          </p>
+          <p style={{ fontSize: 14, color: '#93c5fd', marginBottom: 32 }}>Used by Bartact — 812 verified buyer reviews · ★4.97 · vs 2 fake 1-stars they couldn&apos;t remove from Google.</p>
+          <div style={{ display: 'flex', gap: 16, justifyContent: 'center', flexWrap: 'wrap' }}>
+            <a href="/place/bartact-temecula-ca" style={{ display: 'inline-block', background: 'rgba(255,255,255,0.15)', color: '#fff', fontWeight: 700, fontSize: 15, padding: '13px 28px', borderRadius: 12, textDecoration: 'none', border: '1px solid rgba(255,255,255,0.3)' }}>See Live Demo →</a>
+            <a href="/for-businesses" style={{ display: 'inline-block', background: '#fff', color: '#1e40af', fontWeight: 800, fontSize: 15, padding: '13px 28px', borderRadius: 12, textDecoration: 'none' }}>Get Started Free →</a>
+          </div>
+        </div>
+      </section>
+
+      {/* Consumer CTA */}
       <section style={{ textAlign: 'center', padding: '64px 20px' }}>
-        <h2 style={{ fontSize: 26, fontWeight: 900, color: '#111827', marginBottom: 12 }}>115,000+ places and growing daily.</h2>
-        <p style={{ fontSize: 15, color: '#6b7280', marginBottom: 28 }}>Search for any restaurant and see how it&apos;s actually doing right now.</p>
-        <a href="/search" style={{
-          display: 'inline-block',
-          background: '#2563eb',
-          color: '#fff',
-          fontWeight: 700,
-          fontSize: 16,
-          padding: '14px 36px',
-          borderRadius: 12,
-          textDecoration: 'none',
-        }}>
+        <h2 style={{ fontSize: 26, fontWeight: 900, color: '#111827', marginBottom: 12 }}>400,000+ places and growing daily.</h2>
+        <p style={{ fontSize: 15, color: '#6b7280', marginBottom: 28 }}>Search for any restaurant or business and see how it&apos;s actually rated right now — not years ago.</p>
+        <a href="/search" style={{ display: 'inline-block', background: '#2563eb', color: '#fff', fontWeight: 700, fontSize: 16, padding: '14px 36px', borderRadius: 12, textDecoration: 'none' }}>
           Start Searching →
         </a>
       </section>
