@@ -124,9 +124,9 @@ export default function Home() {
       {/* Time buckets */}
       <section style={{ background: '#fff', borderTop: '1px solid #f3f4f6', borderBottom: '1px solid #f3f4f6', padding: '48px 20px', textAlign: 'center' }}>
         <div style={{ maxWidth: 600, margin: '0 auto' }}>
-          <h2 style={{ fontSize: 26, fontWeight: 900, color: '#111827', marginBottom: 12 }}>Four time windows. One real picture.</h2>
+          <h2 style={{ fontSize: 26, fontWeight: 900, color: '#111827', marginBottom: 12 }}>Multiple time windows. One real picture.</h2>
           <p style={{ fontSize: 15, color: '#6b7280', marginBottom: 28 }}>
-            Every place shows ratings for all four time periods — so you can see if they&apos;re trending up, down, or holding steady.
+            Every place shows ratings across multiple time periods — so you can see if they&apos;re trending up, down, or holding steady.
           </p>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10, justifyContent: 'center' }}>
             {['Last 30 Days', 'Last 6 Months', 'Last Year', 'All Time'].map(label => (
