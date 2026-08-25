@@ -173,7 +173,7 @@ export default function ForBusinessesPage() {
       <section style={{ background: '#f8fafc', borderBottom: '1px solid #e2e8f0', padding: '28px 24px', textAlign: 'center' }}>
         <p style={{ fontSize: 13, color: '#6b7280', margin: '0 0 10px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: 0.8 }}>Live Demo</p>
         <p style={{ fontSize: 16, color: '#111827', fontWeight: 700, margin: '0 0 12px' }}>
-          Bartact — 812 verified buyer reviews · ★4.97 · vs Google&apos;s 2 fake 1-stars they can&apos;t remove
+          Bartact — 812 verified buyer reviews · ★4.97 — see how verified reviews change the story
         </p>
         <a href="/place/bartact-temecula-ca" target="_blank" style={{ display: 'inline-block', background: '#1d4ed8', color: '#fff', fontWeight: 700, padding: '10px 24px', borderRadius: 10, textDecoration: 'none', fontSize: 14 }}>
           See Bartact&apos;s Page →

@@ -152,7 +152,7 @@ export default function Home() {
           <p style={{ fontSize: 15, color: '#bfdbfe', marginBottom: 12, lineHeight: 1.7 }}>
             Fake Google reviews hurt real businesses. Your Yotpo, Judge.me, and Stamped reviews from actual customers sit hidden on your own site. We change that.
           </p>
-          <p style={{ fontSize: 14, color: '#93c5fd', marginBottom: 32 }}>Used by Bartact — 812 verified buyer reviews · ★4.97 · vs 2 fake 1-stars they couldn&apos;t remove from Google.</p>
+          <p style={{ fontSize: 14, color: '#93c5fd', marginBottom: 32 }}>Used by Bartact — 812 verified buyer reviews · ★4.97 — see how verified reviews change the story.</p>
           <div style={{ display: 'flex', gap: 16, justifyContent: 'center', flexWrap: 'wrap' }}>
             <a href="/place/bartact-temecula-ca" style={{ display: 'inline-block', background: 'rgba(255,255,255,0.15)', color: '#fff', fontWeight: 700, fontSize: 15, padding: '13px 28px', borderRadius: 12, textDecoration: 'none', border: '1px solid rgba(255,255,255,0.3)' }}>See Live Demo →</a>
             <a href="/for-businesses" style={{ display: 'inline-block', background: '#fff', color: '#1e40af', fontWeight: 800, fontSize: 15, padding: '13px 28px', borderRadius: 12, textDecoration: 'none' }}>Get Started Free →</a>
