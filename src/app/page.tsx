@@ -150,7 +150,7 @@ export default function Home() {
           <div style={{ fontSize: 13, fontWeight: 700, color: '#93c5fd', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 16 }}>For Businesses</div>
           <h2 style={{ fontSize: 28, fontWeight: 900, color: '#fff', marginBottom: 16, lineHeight: 1.3 }}>Your verified buyer reviews deserve to be seen.</h2>
           <p style={{ fontSize: 15, color: '#bfdbfe', marginBottom: 12, lineHeight: 1.7 }}>
-            Fake Google reviews hurt real businesses. Your Yotpo, Judge.me, and Stamped reviews from actual customers sit hidden on your own site. We change that.
+            Your verified buyer reviews are hidden. Your Yotpo, Judge.me, and Stamped reviews from actual customers sit hidden on your own site. We change that.
           </p>
           <p style={{ fontSize: 14, color: '#93c5fd', marginBottom: 32 }}>Used by Bartact — 812 verified buyer reviews · ★4.97 — see how verified reviews change the story.</p>
           <div style={{ display: 'flex', gap: 16, justifyContent: 'center', flexWrap: 'wrap' }}>
