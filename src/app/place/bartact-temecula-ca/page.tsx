@@ -1,12 +1,15 @@
 import { Metadata } from 'next'
 import data from '@/data/bartact-reviews.json'
 
+const combinedTotalMeta = data.total + 13
+const combinedAvgMeta = parseFloat(((data.avg * data.total + 4.38 * 13) / combinedTotalMeta).toFixed(2))
+
 export const metadata: Metadata = {
   title: 'Bartact Reviews & Ratings — Temecula, CA | RecentRatings',
-  description: `★${data.avg} — ${data.total} verified buyer reviews for Bartact in Temecula, CA. Jeep seat covers, grab handles, and accessories. Made in USA since 2012.`,
+  description: `★${combinedAvgMeta} — ${combinedTotalMeta} customer reviews for Bartact in Temecula, CA. Jeep seat covers, grab handles & accessories. Made in USA since 2012.`,
   openGraph: {
     title: 'Bartact Reviews & Ratings | RecentRatings',
-    description: `${data.total} verified buyer reviews · ★${data.avg} average`,
+    description: `${combinedTotalMeta} customer reviews · ★${combinedAvgMeta} RecentRatings score`,
     url: 'https://recentratings.com/place/bartact-temecula-ca',
   }
 }
@@ -30,8 +33,8 @@ export default function BartactPage() {
   const combinedAvg = parseFloat(((data.avg * data.total + 4.38 * 13) / combinedTotal).toFixed(2))
 
   const scoreBuckets = [
-    data.d180 > 0 && { label: 'Last 6 Months', count: data.d180, avg: data.avg },
-    data.d365 > 0 && { label: 'Last Year', count: data.d365, avg: data.avg },
+    data.d180 >= 20 && { label: 'Last 6 Months', count: data.d180, avg: data.avg },
+    data.d365 >= 20 && { label: 'Last Year', count: data.d365, avg: data.avg },
     { label: 'All Time', count: combinedTotal, avg: combinedAvg },
   ].filter(Boolean) as { label: string; count: number; avg: number }[]
 
