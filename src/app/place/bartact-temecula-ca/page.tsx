@@ -96,21 +96,21 @@ export default function BartactPage() {
         </div>
       </div>
 
-      {/* Review CTA — drives traffic to business's own review platform */}
+      {/* Shop CTA */}
       <div style={{ background: 'linear-gradient(135deg, #1e40af 0%, #1d4ed8 100%)', borderRadius: 18, padding: 28, textAlign: 'center', marginBottom: 20, color: '#fff' }}>
-        <h2 style={{ fontSize: 20, fontWeight: 900, margin: '0 0 8px', color: '#fff' }}>Want to leave a review?</h2>
+        <h2 style={{ fontSize: 20, fontWeight: 900, margin: '0 0 8px', color: '#fff' }}>Buy from Bartact</h2>
         <p style={{ fontSize: 14, color: '#bfdbfe', margin: '0 0 20px', lineHeight: 1.6 }}>
-          Purchase from Bartact and you&apos;ll automatically receive a verified buyer review request. Every review here started that way.
+          Verified buyer reviews are collected automatically after every purchase. Every review on this page started with a real order.
         </p>
         <a
-          href="https://bartact.com"
+          href="https://www.bartact.com/collections/all"
           target="_blank" rel="noopener noreferrer"
           style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: '#fff', color: '#1e40af', fontWeight: 800, fontSize: 15, padding: '13px 28px', borderRadius: 12, textDecoration: 'none', boxShadow: '0 2px 8px rgba(0,0,0,0.15)' }}>
-          🛒 Shop Bartact →
+          🛒 Shop Bartact Products →
         </a>
       </div>
 
-      {/* Reviews */}
+            {/* Reviews */}
       <div style={{ background: '#fff', borderRadius: 18, border: '1px solid #e5e7eb', boxShadow: '0 1px 4px rgba(0,0,0,0.06)', padding: 24, marginBottom: 20 }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20, flexWrap: 'wrap', gap: 8 }}>
           <h2 style={{ fontSize: 18, fontWeight: 900, color: '#111827', margin: 0 }}>Customer Reviews</h2>
