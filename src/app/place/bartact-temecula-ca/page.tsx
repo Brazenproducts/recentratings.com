@@ -98,15 +98,15 @@ export default function BartactPage() {
 
       {/* Review CTA — drives traffic to business's own review platform */}
       <div style={{ background: 'linear-gradient(135deg, #1e40af 0%, #1d4ed8 100%)', borderRadius: 18, padding: 28, textAlign: 'center', marginBottom: 20, color: '#fff' }}>
-        <h2 style={{ fontSize: 20, fontWeight: 900, margin: '0 0 8px', color: '#fff' }}>Purchased from Bartact?</h2>
+        <h2 style={{ fontSize: 20, fontWeight: 900, margin: '0 0 8px', color: '#fff' }}>Want to leave a review?</h2>
         <p style={{ fontSize: 14, color: '#bfdbfe', margin: '0 0 20px', lineHeight: 1.6 }}>
-          Leave a verified buyer review on Yotpo — the same platform powering Bartact&apos;s 812 verified reviews.
+          Purchase from Bartact and you&apos;ll automatically receive a verified buyer review request. Every review here started that way.
         </p>
         <a
           href="https://bartact.com"
           target="_blank" rel="noopener noreferrer"
           style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: '#fff', color: '#1e40af', fontWeight: 800, fontSize: 15, padding: '13px 28px', borderRadius: 12, textDecoration: 'none', boxShadow: '0 2px 8px rgba(0,0,0,0.15)' }}>
-          ✓ Leave a Yotpo Verified Review
+          🛒 Shop Bartact →
         </a>
       </div>
 
