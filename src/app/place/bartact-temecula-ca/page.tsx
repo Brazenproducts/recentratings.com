@@ -102,13 +102,13 @@ export default function BartactPage() {
       <div style={{ background: 'linear-gradient(135deg, #1e40af 0%, #1d4ed8 100%)', borderRadius: 18, padding: 28, textAlign: 'center', marginBottom: 20, color: '#fff' }}>
         <h2 style={{ fontSize: 20, fontWeight: 900, margin: '0 0 8px', color: '#fff' }}>Purchased from Bartact?</h2>
         <p style={{ fontSize: 14, color: '#bfdbfe', margin: '0 0 20px', lineHeight: 1.6 }}>
-          Leave a verified review on Bartact&apos;s site — it helps other Jeep owners make great decisions.
+          Leave a verified buyer review on Yotpo — the same platform powering Bartact&apos;s 812 verified reviews.
         </p>
         <a
-          href="https://bartact.com/#reviews"
+          href="https://bartact.com/pages/reviews"
           target="_blank" rel="noopener noreferrer"
           style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: '#fff', color: '#1e40af', fontWeight: 800, fontSize: 15, padding: '13px 28px', borderRadius: 12, textDecoration: 'none', boxShadow: '0 2px 8px rgba(0,0,0,0.15)' }}>
-          ✓ Leave a Verified Review on Bartact.com
+          ✓ Leave a Yotpo Verified Review
         </a>
       </div>
 
