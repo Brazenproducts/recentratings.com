@@ -129,7 +129,7 @@ export default function Home() {
             Every place shows ratings across multiple time periods — so you can see if they&apos;re trending up, down, or holding steady.
           </p>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10, justifyContent: 'center' }}>
-            {['Last 30 Days', 'Last 6 Months', 'Last Year', 'All Time'].map(label => (
+            {['Last 6 Months', 'Last Year', 'All Time'].map(label => (
               <span key={label} style={{
                 background: '#eff6ff',
                 color: '#1d4ed8',
