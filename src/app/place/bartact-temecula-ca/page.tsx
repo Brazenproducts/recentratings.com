@@ -98,17 +98,17 @@ export default function BartactPage() {
         </div>
       </div>
 
-      {/* Write a Review CTA */}
+      {/* Share CTA */}
       <div style={{ background: 'linear-gradient(135deg, #1e40af 0%, #1d4ed8 100%)', borderRadius: 18, padding: 28, textAlign: 'center', marginBottom: 20, color: '#fff' }}>
-        <h2 style={{ fontSize: 20, fontWeight: 900, margin: '0 0 8px', color: '#fff' }}>Have you purchased from Bartact?</h2>
+        <h2 style={{ fontSize: 20, fontWeight: 900, margin: '0 0 8px', color: '#fff' }}>Know someone who rides Jeep?</h2>
         <p style={{ fontSize: 14, color: '#bfdbfe', margin: '0 0 20px', lineHeight: 1.6 }}>
-          Your honest review helps others — and helps Bartact get the recognition they deserve.
+          Share Bartact&apos;s verified review page with fellow Jeep owners.
         </p>
         <a
-          href="https://search.google.com/local/writereview?placeid=ChIJNZPFhPqB3IARZFemkZwMUkY"
+          href="https://bartact.com"
           target="_blank" rel="noopener noreferrer"
           style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: '#fff', color: '#1e40af', fontWeight: 800, fontSize: 15, padding: '13px 28px', borderRadius: 12, textDecoration: 'none', boxShadow: '0 2px 8px rgba(0,0,0,0.15)' }}>
-          ⭐ Write a Google Review
+          🛒 Shop Bartact →
         </a>
       </div>
 
