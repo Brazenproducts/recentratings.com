@@ -2,11 +2,12 @@
 import { useState } from 'react'
 
 const FOUNDING_SPOTS_LEFT = 47 // update manually as spots fill
+const FOUNDING_PRICE = '$29.99'
 
 const PLANS = [
   {
     name: 'Founding Member',
-    price: '$19',
+    price: FOUNDING_PRICE,
     priceNote: '/mo forever',
     color: '#92400e',
     bg: '#fffbeb',
@@ -17,7 +18,7 @@ const PLANS = [
       'Everything in Growth — locked in for life',
       'Price never increases',
       'Direct line to the founding team',
-      `${FOUNDING_SPOTS_LEFT} spots remaining`,
+      'Limited spots — act fast',
     ],
     cta: 'Claim Founding Rate',
     planKey: 'founding',
@@ -163,7 +164,7 @@ export default function ForBusinessesPage() {
       {/* FOUNDING MEMBER BANNER */}
       <section style={{ background: '#fffbeb', borderTop: '2px solid #f59e0b', borderBottom: '2px solid #f59e0b', padding: '20px 24px', textAlign: 'center' }}>
         <p style={{ fontSize: 15, color: '#92400e', fontWeight: 700, margin: 0 }}>
-          🔥 Founding Member Rate: <strong>$19/mo for life</strong> — only {FOUNDING_SPOTS_LEFT} of 50 spots remaining.{' '}
+          🔥 Founding Member Rate: <strong>{FOUNDING_PRICE}/mo for life</strong> — limited spots only.{' '}
           <a href="#signup" style={{ color: '#92400e', textDecoration: 'underline' }}>Lock it in →</a>
         </p>
       </section>
