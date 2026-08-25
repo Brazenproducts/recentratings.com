@@ -33,10 +33,10 @@ export default function BartactPage() {
   const combinedAvg = parseFloat(((data.avg * data.total + 4.38 * 13) / combinedTotal).toFixed(2))
 
   const scoreBuckets = [
-    false &&  { label: 'Last 6 Months', count: data.d180, avg: 0 },
-    false && { label: 'Last Year', count: data.d365, avg: 0 },
+    data.d180 > 0 && { label: 'Last 6 Months', count: data.d180, avg: null },
+    data.d365 > 0 && { label: 'Last Year', count: data.d365, avg: null },
     { label: 'All Time', count: combinedTotal, avg: combinedAvg },
-  ].filter(Boolean) as { label: string; count: number; avg: number }[]
+  ].filter(Boolean) as { label: string; count: number; avg: number | null }[]
 
   return (
     <div style={{ maxWidth: 860, margin: '0 auto', padding: '28px 20px', fontFamily: 'system-ui, sans-serif' }}>
@@ -87,7 +87,7 @@ export default function BartactPage() {
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', gap: 12 }}>
           {scoreBuckets.map(b => (
             <div key={b.label} style={{ background: '#fff', borderRadius: 14, border: '2px solid #86efac', padding: '14px 16px', textAlign: 'center' }}>
-              <div style={{ fontSize: 28, fontWeight: 900, color: '#166534' }}>★ {fmtScore(b.avg)}</div>
+              {b.avg ? <div style={{ fontSize: 28, fontWeight: 900, color: '#166534' }}>★ {fmtScore(b.avg)}</div> : <div style={{ fontSize: 13, color: '#166534', fontWeight: 600, padding: '8px 0' }}>Reviews present</div>}
               <div style={{ fontSize: 12, color: '#166534', fontWeight: 700, marginTop: 4 }}>{b.count.toLocaleString()} reviews</div>
               <div style={{ fontSize: 11, color: '#4b7c59', marginTop: 2 }}>{b.label}</div>
             </div>
