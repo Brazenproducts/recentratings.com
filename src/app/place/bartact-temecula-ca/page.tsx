@@ -103,7 +103,7 @@ export default function BartactPage() {
           Leave a verified buyer review on Yotpo — the same platform powering Bartact&apos;s 812 verified reviews.
         </p>
         <a
-          href="https://bartact.com/pages/reviews"
+          href="https://bartact.com"
           target="_blank" rel="noopener noreferrer"
           style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: '#fff', color: '#1e40af', fontWeight: 800, fontSize: 15, padding: '13px 28px', borderRadius: 12, textDecoration: 'none', boxShadow: '0 2px 8px rgba(0,0,0,0.15)' }}>
           ✓ Leave a Yotpo Verified Review
