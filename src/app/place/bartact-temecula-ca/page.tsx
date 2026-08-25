@@ -33,8 +33,8 @@ export default function BartactPage() {
   const combinedAvg = parseFloat(((data.avg * data.total + 4.38 * 13) / combinedTotal).toFixed(2))
 
   const scoreBuckets = [
-    data.d180 >= 20 && { label: 'Last 6 Months', count: data.d180, avg: data.avg },
-    data.d365 >= 20 && { label: 'Last Year', count: data.d365, avg: data.avg },
+    data.d180 > 0 && { label: 'Last 6 Months', count: data.d180, avg: (data as typeof data & {d180avg:number}).d180avg || data.avg },
+    data.d365 > 0 && { label: 'Last Year', count: data.d365, avg: (data as typeof data & {d365avg:number}).d365avg || data.avg },
     { label: 'All Time', count: combinedTotal, avg: combinedAvg },
   ].filter(Boolean) as { label: string; count: number; avg: number }[]
 
