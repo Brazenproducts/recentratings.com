@@ -1,0 +1,322 @@
+[
+  {
+    "name": "Bonefish Grill",
+    "slug": "bonefish-grill-alpharetta-ga",
+    "address": "Alpharetta, GA",
+    "category": "Restaurant",
+    "lat": 34.0655939,
+    "lng": -84.2102316
+  },
+  {
+    "name": "Adobo Taqueria and Tequila Bar",
+    "slug": "adobo-taqueria-and-tequila-bar-alpharetta-ga",
+    "address": "Alpharetta, GA",
+    "category": "Restaurant",
+    "lat": 34.0620502,
+    "lng": -84.2140031
+  },
+  {
+    "name": "Moksha",
+    "slug": "moksha-alpharetta-ga",
+    "address": "Alpharetta, GA",
+    "category": "Restaurant",
+    "lat": 34.0446301,
+    "lng": -84.320903
+  },
+  {
+    "name": "Taco Mac",
+    "slug": "taco-mac-alpharetta-ga",
+    "address": "685 West Crossville Road",
+    "category": "Restaurant",
+    "lat": 34.059508,
+    "lng": -84.3820155
+  },
+  {
+    "name": "Little Caesars",
+    "slug": "little-caesars-alpharetta-ga",
+    "address": "Alpharetta, GA",
+    "category": "Restaurant",
+    "lat": 34.0936417,
+    "lng": -84.2071196
+  },
+  {
+    "name": "Stadium Concessions",
+    "slug": "stadium-concessions-alpharetta-ga",
+    "address": "Alpharetta, GA",
+    "category": "Restaurant",
+    "lat": 34.0566277,
+    "lng": -84.3917055
+  },
+  {
+    "name": "Land of a Thousand Hills Coffee House",
+    "slug": "land-of-a-thousand-hills-coffee-house-alpharetta-ga",
+    "address": "Alpharetta, GA",
+    "category": "Coffee Shop",
+    "lat": 34.008335,
+    "lng": -84.360199
+  },
+  {
+    "name": "Taco Bell",
+    "slug": "taco-bell-alpharetta-ga",
+    "address": "915 Holcomb Bridge Road",
+    "category": "Restaurant",
+    "lat": 34.026912,
+    "lng": -84.3343884
+  },
+  {
+    "name": "Starbucks",
+    "slug": "starbucks-alpharetta-ga",
+    "address": "10800 Alpharetta Highway",
+    "category": "Coffee Shop",
+    "lat": 34.0432193,
+    "lng": -84.3416403
+  },
+  {
+    "name": "The Original Pancake House",
+    "slug": "the-original-pancake-house-alpharetta-ga",
+    "address": "5530 Windward Parkway",
+    "category": "Restaurant",
+    "lat": 34.0882129,
+    "lng": -84.2662203
+  },
+  {
+    "name": "Thai 2",
+    "slug": "thai-2-alpharetta-ga",
+    "address": "Alpharetta, GA",
+    "category": "Restaurant",
+    "lat": 34.0881597,
+    "lng": -84.2661495
+  },
+  {
+    "name": "Smokejack",
+    "slug": "smokejack-alpharetta-ga",
+    "address": "Alpharetta, GA",
+    "category": "Restaurant",
+    "lat": 34.0748046,
+    "lng": -84.2948056
+  },
+  {
+    "name": "Madras Chetinaad",
+    "slug": "madras-chetinaad-alpharetta-ga",
+    "address": "Alpharetta, GA",
+    "category": "Restaurant",
+    "lat": 34.0576032,
+    "lng": -84.2354105
+  },
+  {
+    "name": "Tarahumata",
+    "slug": "tarahumata-alpharetta-ga",
+    "address": "Alpharetta, GA",
+    "category": "Restaurant",
+    "lat": 34.0935015,
+    "lng": -84.2371294
+  },
+  {
+    "name": "Firefly",
+    "slug": "firefly-alpharetta-ga",
+    "address": "Alpharetta, GA",
+    "category": "Restaurant",
+    "lat": 34.0927892,
+    "lng": -84.2411199
+  },
+  {
+    "name": "Papouli's",
+    "slug": "papouli-s-alpharetta-ga",
+    "address": "3070 Windward Parkway",
+    "category": "Restaurant",
+    "lat": 34.0934865,
+    "lng": -84.2404905
+  },
+  {
+    "name": "Etris Kitchen & Bar",
+    "slug": "etris-kitchen-bar-alpharetta-ga",
+    "address": "12020 Etris Road",
+    "category": "Restaurant",
+    "lat": 34.0734872,
+    "lng": -84.3617032
+  },
+  {
+    "name": "Qdoba",
+    "slug": "qdoba-alpharetta-ga",
+    "address": "5530 Windward Parkway",
+    "category": "Restaurant",
+    "lat": 34.0876252,
+    "lng": -84.2664706
+  },
+  {
+    "name": "Honey Baked Ham",
+    "slug": "honey-baked-ham-alpharetta-ga",
+    "address": "Alpharetta, GA",
+    "category": "Restaurant",
+    "lat": 34.0406923,
+    "lng": -84.3055133
+  },
+  {
+    "name": "Burger King",
+    "slug": "burger-king-alpharetta-ga",
+    "address": "2310 Mansell Road",
+    "category": "Restaurant",
+    "lat": 34.0381785,
+    "lng": -84.305149
+  },
+  {
+    "name": "Connors Steak & Seafood",
+    "slug": "connors-steak-seafood-alpharetta-ga",
+    "address": "Alpharetta, GA",
+    "category": "Restaurant",
+    "lat": 34.0920641,
+    "lng": -84.2774773
+  },
+  {
+    "name": "Ichibahn Steak House",
+    "slug": "ichibahn-steak-house-alpharetta-ga",
+    "address": "Alpharetta, GA",
+    "category": "Restaurant",
+    "lat": 34.0890876,
+    "lng": -84.2727056
+  },
+  {
+    "name": "Nahm Thai",
+    "slug": "nahm-thai-alpharetta-ga",
+    "address": "Alpharetta, GA",
+    "category": "Restaurant",
+    "lat": 34.089543,
+    "lng": -84.272019
+  },
+  {
+    "name": "El Potrillo",
+    "slug": "el-potrillo-alpharetta-ga",
+    "address": "Alpharetta, GA",
+    "category": "Restaurant",
+    "lat": 33.9880244,
+    "lng": -84.2709535
+  },
+  {
+    "name": "BurgerFi",
+    "slug": "burgerfi-alpharetta-ga",
+    "address": "5475 Windward Parkway",
+    "category": "Restaurant",
+    "lat": 34.0874653,
+    "lng": -84.2703281
+  },
+  {
+    "name": "Cafe Efendi",
+    "slug": "cafe-efendi-alpharetta-ga",
+    "address": "488 North Main Street",
+    "category": "Restaurant",
+    "lat": 34.0877449,
+    "lng": -84.2957763
+  },
+  {
+    "name": "Taqueria Tsunami",
+    "slug": "taqueria-tsunami-alpharetta-ga",
+    "address": "1570 Holcomb Bridge Road",
+    "category": "Restaurant",
+    "lat": 34.0186642,
+    "lng": -84.3120735
+  },
+  {
+    "name": "Foundation Social Eatery",
+    "slug": "foundation-social-eatery-alpharetta-ga",
+    "address": "Alpharetta, GA",
+    "category": "Restaurant",
+    "lat": 34.0189855,
+    "lng": -84.3118884
+  },
+  {
+    "name": "Kale Me Crazy",
+    "slug": "kale-me-crazy-alpharetta-ga",
+    "address": "1570 Holcomb Bridge Road",
+    "category": "Coffee Shop",
+    "lat": 34.0181918,
+    "lng": -84.312154
+  },
+  {
+    "name": "Ray's",
+    "slug": "ray-s-alpharetta-ga",
+    "address": "Alpharetta, GA",
+    "category": "Restaurant",
+    "lat": 34.0409917,
+    "lng": -84.3157017
+  },
+  {
+    "name": "Miller's Ale House",
+    "slug": "miller-s-ale-house-alpharetta-ga",
+    "address": "Alpharetta, GA",
+    "category": "Restaurant",
+    "lat": 34.0420341,
+    "lng": -84.3139476
+  },
+  {
+    "name": "Village Tavern",
+    "slug": "village-tavern-alpharetta-ga",
+    "address": "Alpharetta, GA",
+    "category": "Restaurant",
+    "lat": 34.062101,
+    "lng": -84.2874319
+  },
+  {
+    "name": "Thai Thai",
+    "slug": "thai-thai-alpharetta-ga",
+    "address": "Alpharetta, GA",
+    "category": "Restaurant",
+    "lat": 34.0620458,
+    "lng": -84.2896038
+  },
+  {
+    "name": "Blue River Tavern",
+    "slug": "blue-river-tavern-alpharetta-ga",
+    "address": "Alpharetta, GA",
+    "category": "Restaurant",
+    "lat": 34.0988423,
+    "lng": -84.2725316
+  },
+  {
+    "name": "Bobby G's",
+    "slug": "bobby-g-s-alpharetta-ga",
+    "address": "Alpharetta, GA",
+    "category": "Restaurant",
+    "lat": 34.0992321,
+    "lng": -84.2725115
+  },
+  {
+    "name": "Subway",
+    "slug": "subway-alpharetta-ga",
+    "address": "1630 Mansell Road",
+    "category": "Restaurant",
+    "lat": 34.040915,
+    "lng": -84.3188761
+  },
+  {
+    "name": "Cook Out",
+    "slug": "cook-out-alpharetta-ga",
+    "address": "Alpharetta, GA",
+    "category": "Restaurant",
+    "lat": 34.0615814,
+    "lng": -84.2893678
+  },
+  {
+    "name": "Kona Grill",
+    "slug": "kona-grill-alpharetta-ga",
+    "address": "5100 Avalon Boulevard",
+    "category": "Restaurant",
+    "lat": 34.0715366,
+    "lng": -84.2762142
+  },
+  {
+    "name": "Caffe Antico",
+    "slug": "caffe-antico-alpharetta-ga",
+    "address": "3185 Avalon Boulevard",
+    "category": "Restaurant",
+    "lat": 34.0713888,
+    "lng": -84.276772
+  },
+  {
+    "name": "Marlow's Tavern",
+    "slug": "marlow-s-tavern-alpharetta-ga",
+    "address": "3900 Avalon Boulevard",
+    "category": "Restaurant",
+    "lat": 34.0715689,
+    "lng": -84.2766964
+  }
+]

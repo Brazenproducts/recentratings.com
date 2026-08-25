@@ -1,23 +1,8 @@
 import { Metadata } from 'next'
-import { unstable_cache } from 'next/cache'
 import { supabaseAdmin } from '@/lib/supabase'
 import PlaceDetail from './PlaceDetail'
 
-// Cache the heavy review aggregation query — avoids fetching 800+ rows on every page load
-const getCachedReviewStats = unstable_cache(
-  async (googlePlaceId: string) => {
-    const { data } = await supabaseAdmin
-      .from('reviews_cache')
-      .select('rating,time_published,source')
-      .eq('google_place_id', googlePlaceId)
-      .not('rating', 'is', null)
-    return (data || []) as { rating: number; time_published: string; source: string }[]
-  },
-  ['review-stats'],
-  { revalidate: 3600 }
-)
-
-export const revalidate = 3600 // Cache at CDN edge, rebuild every hour
+export const dynamic = 'force-dynamic'
 
 // Pre-build certified/demo business pages at deploy time — served from CDN instantly
 export async function generateStaticParams() {
@@ -173,40 +158,34 @@ function buildJsonLd(place: Record<string, unknown>, ratings: Record<string, unk
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params
-  const { data: place } = await supabaseAdmin
-    .from('restaurants')
-    .select('name, city, state, google_rating, google_review_count')
-    .eq('slug', slug)
-    .single()
 
-  if (!place) return { title: 'Place Not Found — RecentRatings' }
+  // Build metadata from slug alone — no DB call needed at build time
+  // Slug format: business-name-city-state (e.g. bartact-temecula-ca)
+  const parts = slug.split('-')
+  const state = parts[parts.length - 1].toUpperCase()
+  const city = parts.slice(-2, -1).map((w: string) => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')
+  const name = parts.slice(0, -2).map((w: string) => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')
 
-  const { data: ratings } = await supabaseAdmin
-    .from('recent_ratings')
-    .select('google_rating_90d, google_rating_365d, google_rating_alltime, google_review_count_90d')
-    .eq('restaurant_slug', slug)
-    .maybeSingle()
-
-  // Pick best available score for meta description
-  const score90d = ratings?.google_rating_90d
-  const score365d = ratings?.google_rating_365d
-  const scoreAlltime = ratings?.google_rating_alltime ?? place.google_rating
-  const count90d = ratings?.google_review_count_90d
-
+  // Try to enrich from DB at runtime (Vercel has env vars, local build does not)
+  let dbName = name, dbCity = city, dbState = state
   let descScore = ''
-  if (score90d) {
-    descScore = `★${score90d.toFixed(1)} in the last 90 days`
-    if (count90d) descScore += ` (${count90d} reviews)`
-    descScore += '. '
-  } else if (score365d) {
-    descScore = `★${score365d.toFixed(1)} over the last year. `
-  } else if (scoreAlltime) {
-    descScore = `★${scoreAlltime.toFixed(1)} all-time. `
-  }
+  try {
+    const { data: place } = await supabaseAdmin
+      .from('restaurants')
+      .select('name, city, state, google_rating')
+      .eq('slug', slug)
+      .maybeSingle()
+    if (place) {
+      dbName = place.name || name
+      dbCity = place.city || city
+      dbState = place.state || state
+      if (place.google_rating) descScore = `★${(place.google_rating as number).toFixed(1)} rating. `
+    }
+  } catch { /* Build time — env vars not available, use slug-derived metadata */ }
 
   // Title: keyword-first per SEO playbook
-  const title = `${place.name} Reviews & Ratings — ${place.city}, ${place.state} | RecentRatings`
-  const description = `${descScore}${place.name} reviews & ratings in ${place.city}, ${place.state} — verified buyer reviews, time-filtered scores (90-day, 1-year, all-time), and real customer feedback.`
+  const title = `${dbName} Reviews & Ratings — ${dbCity}, ${dbState} | RecentRatings`
+  const description = `${descScore}${dbName} reviews & ratings in ${dbCity}, ${dbState} — verified buyer reviews, time-filtered scores (90-day, 1-year, all-time), and real customer feedback.`
 
   return {
     title,
@@ -266,7 +245,7 @@ export default async function PlacePage({ params }: Props) {
 
     // 3. All reviews for yotpo stats — served from 1-hour server cache to avoid 800+ row fetch on every load
     gid
-      ? getCachedReviewStats(gid).then(data => ({ data }))
+      ? supabaseAdmin.from('reviews_cache').select('rating,time_published,source').eq('google_place_id', gid).not('rating', 'is', null)
       : Promise.resolve({ data: null }),
 
     // 4. City averages for comparison
