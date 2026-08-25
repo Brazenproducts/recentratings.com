@@ -238,6 +238,22 @@ export default function ForBusinessesPage() {
         </div>
       </section>
 
+      {/* HOW WE COMPARE */}
+      <section style={{ padding: '48px 24px 0', textAlign: 'center' }}>
+        <div style={{ maxWidth: 640, margin: '0 auto' }}>
+          <h2 style={{ fontSize: 22, fontWeight: 900, color: '#111827', margin: '0 0 8px' }}>How we compare</h2>
+          <p style={{ fontSize: 15, color: '#6b7280', margin: '0 0 24px' }}>See how RecentRatings stacks up against other review platforms.</p>
+          <div style={{ display: 'flex', gap: 16, justifyContent: 'center', flexWrap: 'wrap' }}>
+            <a href="/vs/trustpilot" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: '#eff6ff', color: '#1e40af', border: '2px solid #bfdbfe', fontWeight: 800, padding: '12px 24px', borderRadius: 12, textDecoration: 'none', fontSize: 15 }}>
+              vs Trustpilot <span style={{ fontSize: 18 }}>→</span>
+            </a>
+            <a href="/vs/yelp" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: '#eff6ff', color: '#1e40af', border: '2px solid #bfdbfe', fontWeight: 800, padding: '12px 24px', borderRadius: 12, textDecoration: 'none', fontSize: 15 }}>
+              vs Yelp <span style={{ fontSize: 18 }}>→</span>
+            </a>
+          </div>
+        </div>
+      </section>
+
       {/* SIGNUP */}
       <section id="signup" style={{ background: 'linear-gradient(135deg, #1e3a8a 0%, #1d4ed8 100%)', padding: '72px 24px' }}>
         <div style={{ maxWidth: 560, margin: '0 auto' }}>
