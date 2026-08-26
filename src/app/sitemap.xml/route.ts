@@ -1,8 +1,8 @@
 import { NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase'
 
-export const dynamic = 'force-dynamic'
-export const revalidate = 43200 // Cache sitemap for 12 hours — prevents 60s timeout on every crawl
+// ISR: cache sitemap for 12 hours at Vercel edge — prevents 60s timeout on every crawl
+export const revalidate = 43200
 
 const BASE_URL = 'https://recentratings.com'
 
