@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase'
 
 export const dynamic = 'force-dynamic'
-export const revalidate = 0
+export const revalidate = 43200 // Cache sitemap for 12 hours — prevents 60s timeout on every crawl
 
 const BASE_URL = 'https://recentratings.com'
 

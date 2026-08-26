@@ -3,7 +3,7 @@ import './globals.css'
 
 export const metadata: Metadata = {
   title: 'RecentRatings.com — See How Places Are Rated Right Now',
-  description: 'Time-filtered ratings for restaurants and more. See how places are rated in the last 30 days, 6 months, or 1 year — not just an all-time average.',
+  description: 'RecentRatings shows verified buyer reviews and time-filtered ratings — 6 months, 1 year, and all-time — so you know how a business is rated right now, not just historically.',
   verification: {
     google: 'X09oouSeKXhbeJFBI9D55WiSW3qiAcGaKAE0bFzQ2Ns',
   },
