@@ -2,8 +2,8 @@ import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
   title: 'RecentRatings vs Trustpilot — The Smarter Alternative',
-  description:
-    'RecentRatings vs Trustpilot: same verified reviews at 90% less cost. $29.99/mo vs $299/mo. We show your existing Yotpo, Judge.me, and Stamped reviews — Trustpilot asks you to collect new ones.',
+  description: 'RecentRatings vs Trustpilot: verified reviews at 90% less cost. $29.99/mo vs $299/mo. We surface your existing Yotpo reviews — no new workflow.',
+  alternates: { canonical: 'https://recentratings.com/vs/trustpilot' },
   openGraph: {
     title: 'RecentRatings vs Trustpilot — The Smarter Alternative',
     description:

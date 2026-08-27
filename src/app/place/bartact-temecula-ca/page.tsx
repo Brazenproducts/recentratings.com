@@ -7,6 +7,7 @@ const combinedAvgMeta = parseFloat(((data.avg * data.total + 4.38 * 13) / combin
 export const metadata: Metadata = {
   title: 'Bartact Reviews & Ratings — Temecula, CA | RecentRatings',
   description: `★${combinedAvgMeta} — ${combinedTotalMeta} customer reviews for Bartact in Temecula, CA. Jeep seat covers, grab handles & accessories. Made in USA since 2012.`,
+  alternates: { canonical: 'https://recentratings.com/place/bartact-temecula-ca' },
   openGraph: {
     title: 'Bartact Reviews & Ratings | RecentRatings',
     description: `${combinedTotalMeta} customer reviews · ★${combinedAvgMeta} RecentRatings score`,

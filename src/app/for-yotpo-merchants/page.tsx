@@ -1,7 +1,7 @@
 import { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'Yotpo Merchants: Your Verified Reviews Deserve More Visibility | RecentRatings',
+  title: 'For Yotpo Merchants — Show Your Reviews | RecentRatings',
   description:
     'Yotpo merchants: show your verified buyer reviews alongside Google ratings on a neutral, indexed, shareable page. Time-filtered scores, embed widget, and fraud dispute — $29.99/mo.',
   keywords: [

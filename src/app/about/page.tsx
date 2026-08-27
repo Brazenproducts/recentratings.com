@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
   title: 'About RecentRatings — Why We Exist',
-  description: 'RecentRatings aggregates time-filtered ratings from Google, Yelp, Yotpo, Judge.me, and Stamped. We show you how businesses are rated right now — not just all-time averages.',
+  description: 'RecentRatings shows time-filtered ratings from Google, Yotpo, and verified platforms. See how places are rated recently — not just an all-time average.',
   alternates: { canonical: 'https://recentratings.com/about' },
 }
 
