@@ -2,7 +2,7 @@ import { Metadata } from 'next'
 
 export const metadata: Metadata = {
   title: 'For Businesses — RecentRatings | Show Your Verified Reviews',
-  description: 'Claim your RecentRatings page. Connect Yotpo, Judge.me, or Stamped — we display your verified buyer reviews alongside Google and Yelp ratings. Plans from $29.99/mo.',
+  description: 'Claim your RecentRatings page. Connect Yotpo or Judge.me — show verified buyer reviews alongside Google ratings. From $29.99/mo.',
   alternates: { canonical: 'https://recentratings.com/for-businesses' },
   openGraph: {
     title: 'RecentRatings for Businesses — Verified Reviews, Time-Filtered Ratings',
