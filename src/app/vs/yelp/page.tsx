@@ -1,11 +1,12 @@
 import type { Metadata } from 'next'
 
+// metadata
 export const metadata: Metadata = {
-  title: 'RecentRatings vs Yelp — Stop Paying for Ads That Don\'t Fix Your Reviews',
+  title: 'RecentRatings vs Yelp — Stop Paying $300/mo for Ads',
   description:
     'Yelp charges $300–600/mo for ads. RecentRatings charges $29.99/mo and actually shows your verified buyer reviews — not ads that come with strings attached.',
   openGraph: {
-    title: 'RecentRatings vs Yelp — Stop Paying for Ads That Don\'t Fix Your Reviews',
+    title: 'RecentRatings vs Yelp — Stop Paying $300/mo for Ads',
     description:
       'Yelp charges $300–600/mo for ads. RecentRatings charges $29.99/mo and actually shows your verified buyer reviews.',
     url: 'https://recentratings.com/vs/yelp',

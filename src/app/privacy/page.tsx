@@ -2,7 +2,8 @@ import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
   title: 'Privacy Policy — RecentRatings',
-  description: 'Privacy Policy for RecentRatings.com',
+  description: 'How RecentRatings collects, uses, and protects your data. We do not sell personal information. Read our full privacy policy.',
+  alternates: { canonical: 'https://recentratings.com/privacy' },
 }
 
 export default function PrivacyPage() {

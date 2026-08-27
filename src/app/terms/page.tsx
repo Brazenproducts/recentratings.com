@@ -2,7 +2,8 @@ import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
   title: 'Terms of Service — RecentRatings',
-  description: 'Terms of Service for RecentRatings.com',
+  description: 'Terms governing use of RecentRatings.com — data sourcing, review display, business subscriptions, and acceptable use policies.',
+  alternates: { canonical: 'https://recentratings.com/terms' },
 }
 
 export default function TermsPage() {

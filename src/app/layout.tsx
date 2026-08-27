@@ -3,16 +3,25 @@ import './globals.css'
 
 export const metadata: Metadata = {
   title: 'RecentRatings.com — See How Places Are Rated Right Now',
-  description: 'RecentRatings shows verified buyer reviews and time-filtered ratings — 6 months, 1 year, and all-time — so you know how a business is rated right now, not just historically.',
+  description: 'Time-filtered ratings for 400,000+ places. See verified buyer reviews and recent Google scores — last 6 months, 1 year, or all-time. Free to search.',
+  metadataBase: new URL('https://recentratings.com'),
+  alternates: {
+    canonical: 'https://recentratings.com',
+  },
   verification: {
     google: 'X09oouSeKXhbeJFBI9D55WiSW3qiAcGaKAE0bFzQ2Ns',
   },
   openGraph: {
-    title: 'RecentRatings.com',
-    description: 'See how places are actually rated right now — not years ago.',
+    title: 'RecentRatings.com — See How Places Are Rated Right Now',
+    description: 'Time-filtered ratings for 400,000+ places. Verified buyer reviews + recent Google scores.',
     url: 'https://recentratings.com',
     siteName: 'RecentRatings',
     type: 'website',
+  },
+  twitter: {
+    card: 'summary',
+    title: 'RecentRatings.com',
+    description: 'See how places are actually rated right now — not years ago.',
   },
 }
 

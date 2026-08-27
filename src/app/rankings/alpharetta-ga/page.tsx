@@ -4,6 +4,7 @@ import places from '@/data/alpharetta-ga.json'
 export const metadata: Metadata = {
   title: 'Best Alpharetta, GA Reviews & Ratings | RecentRatings',
   description: 'Restaurants and businesses in Alpharetta, GA — reviews and ratings powered by RecentRatings. See verified buyer reviews and time-filtered scores.',
+  alternates: { canonical: 'https://recentratings.com/rankings/alpharetta-ga' },
   openGraph: {
     title: 'Best Alpharetta, GA Reviews & Ratings | RecentRatings',
     description: 'Restaurants and businesses in Alpharetta, GA — verified reviews and time-filtered ratings.',
