@@ -45,6 +45,24 @@ const faqSchema = {
           'No. RecentRatings is cancel-anytime. Trustpilot typically requires an annual contract, and your profile degrades in visibility if you cancel. With RecentRatings your reviews stay yours — we never hold them hostage.',
       },
     },
+    {
+      '@type': 'Question',
+      name: 'What review platforms does RecentRatings import from?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text:
+          'RecentRatings currently imports verified buyer reviews from Yotpo, Judge.me, and Stamped — the three most widely used post-purchase review platforms for ecommerce. We also display aggregate ratings from Google and Yelp alongside your verified buyer data. If you collect reviews on any of those platforms, you already have what you need to get started.',
+      },
+    },
+    {
+      '@type': 'Question',
+      name: 'How do RecentRatings reviews appear in Google search results?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text:
+          'RecentRatings uses AggregateRating and FAQPage structured data (JSON-LD schema) on every business profile page. This tells Google the exact star rating and review count for each time window — last 90 days, last year, and all-time. Google can then display your star rating directly in search results as a rich snippet, increasing click-through rates. Trustpilot uses similar schema, but only for reviews collected on their platform. RecentRatings uses your verified buyer reviews from Yotpo and similar platforms, which means your actual customers are powering the schema.',
+      },
+    },
   ],
 }
 

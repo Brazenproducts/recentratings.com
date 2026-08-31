@@ -46,6 +46,24 @@ const faqSchema = {
           'Yes. RecentRatings is a separate platform that complements your Yelp presence. Many businesses use both — RecentRatings to showcase verified buyer reviews, and Yelp for local discovery. The difference is you control your narrative on RecentRatings without paying for ads.',
       },
     },
+    {
+      '@type': 'Question',
+      name: 'How much does RecentRatings cost compared to Yelp advertising?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text:
+          'RecentRatings costs $29.99/mo — a flat fee with no ad spend required. Yelp advertising typically runs $300–600/mo for most small businesses, and stopping ads causes your visibility to drop immediately. RecentRatings builds a permanent public profile for your business powered by your verified buyer reviews, so you are building an asset rather than renting attention.',
+      },
+    },
+    {
+      '@type': 'Question',
+      name: 'What kinds of businesses use RecentRatings?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text:
+          'RecentRatings works for any business that collects customer reviews — restaurants, retail stores, ecommerce brands, service businesses, and more. It is especially useful for ecommerce brands already using Yotpo, Judge.me, or Stamped, since we sync your existing verified buyer reviews automatically. Restaurants and local businesses benefit from our time-filtered ratings, which show how a place is performing right now rather than averaging in reviews from years ago.',
+      },
+    },
   ],
 }
 
